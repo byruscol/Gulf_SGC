@@ -6,12 +6,10 @@
     -moz-binding: url('assets/xml/ellipsis.xml#ellipsis') !important;
 }
 
-.ui-widget-content, .span6, hr {
+hr {
     width: 99% !important;
 }
 
-.ui-grid{ width:100% !important; }
-
-.tab-content > .tab-pane {
-    padding: 15px !important;
+.ui-jqgrid .ui-jqgrid-bdiv {
+    width: auto !important;
 }

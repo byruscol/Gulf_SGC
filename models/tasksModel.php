@@ -10,7 +10,7 @@ class tasks extends DBManagerModel{
 			$params["filter"] = 0;
 		
 		$start = $params["limit"] * $params["page"] - $params["limit"];
-		echo $query = "SELECT `taskId`, `name`, `status`, `priority`, `date_entered`, `display_name` AS `created_by`
+		$query = "SELECT `taskId`, `name`, `status`, `priority`, `date_entered`, `display_name` AS `created_by`
 				  		 , `assigned_user_id`, `date_start`,  `date_due`, `description` 
 				  FROM  `".$this->pluginPrefix."tasks` n
 				  JOIN ".$this->wpPrefix."users u ON u.ID = n.created_by

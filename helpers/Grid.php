@@ -13,6 +13,7 @@ class Grid extends DBManager
 	private $entity;
 	private $params;
 	private $loc;
+        private $beforeShowForm = "";
 	public $view;
 	
 	function __construct($type = "table", $p, $v, $t) {
@@ -76,7 +77,8 @@ class Grid extends DBManager
     		}
     		
     		$model = array(
-    				'name'=> $this->loc->getWord($col),
+    				'label' => $this->loc->getWord($col),
+                                'name'=> $col,
     				'index'=> $col,
     				'align' => 'center',
     				'sortable' => true,
@@ -85,6 +87,7 @@ class Grid extends DBManager
     				'formoptions' => $option,
     				'hidden' => $hidden,
     				'classes'=> 'ellipsis'
+                                
     		);
     		
     		if(array_key_exists('references', $value))
@@ -95,23 +98,23 @@ class Grid extends DBManager
     		switch($colType){
     			case 'date':
     				$model = array_merge($model
-				    				,array(
-				    				'sorttype' => "date",
-				    				'formatter' => "date",
-				    				'formatoptions' => array('newformat' => 'Y-m-d', 'srcformat' => 'Y-m-d'),
-				    				'editoptions' => array('dataInit'=>"@initDateEdit@")
-				    				)
-			    				);
+                                                    ,array(
+                                                        'sorttype' => "date",
+				    			'formatter' => "date",
+				    			'formatoptions' => array('newformat' => 'Y-m-d', 'srcformat' => 'Y-m-d'),
+				    			'editoptions' => array('dataInit'=>"@initDateEdit@")
+                                                        )
+                                                    );
     				break;
     			case 'datetime':
     					$model = array_merge($model
-					    					,array(
-					    					'sorttype' => "date",
-					    					'formatter' => "date",
-					    					'formatoptions' => array('newformat' => 'Y-m-d H:i:s', 'srcformat' => 'Y-m-d H:i:s'),
-					    					'editoptions' => array('dataInit'=>"@initDateEdit@")
-					    				)
-				    				);
+                                                            ,array(
+                                                                'sorttype' => "date",
+                                                                'formatter' => "date",
+                                                                'formatoptions' => array('newformat' => 'Y-m-d H:i:s', 'srcformat' => 'Y-m-d H:i:s'),
+                                                                'editoptions' => array('dataInit'=>"@initDateEdit@")
+                                                                )
+                                                            );
     					break;
     			case 'enum':
     				/*$enumList = explode(",", str_replace("'", "", substr($cols["data"][$i]->Type, 5, (strlen($cols["data"][$i]->Type)-6))));
@@ -136,13 +139,13 @@ class Grid extends DBManager
     					
     				$model = array_merge($model
     						,array(
-    								'edittype' => 'select',
-    								'formatter' => 'select',
-    								'stype' => 'select',
-    								'editoptions' => array( value => "@'".$QueryData.":'@" ),
-    								'searchoptions' => array('value' => "@'".$QueryData.":'@")
+                                                    'edittype' => 'select',
+                                                    'formatter' => 'select',
+                                                    'stype' => 'select',
+                                                    'editoptions' => array( value => "@'".$QueryData.":'@" ),
+                                                    'searchoptions' => array('value' => "@'".$QueryData.":'@")
     						)
-    				);
+                                            );
     				break;
     			case 'longblob':
     		
@@ -151,15 +154,18 @@ class Grid extends DBManager
     		
     		if($value['text']){
     			$model["edittype"] = "textarea";
-    			$model["editoptions"]["rows"] = 4; 
+    			$model["editoptions"]["rows"] = 6; 
     			$model["editoptions"]["cols"] = 50;
     			
     			if($j == $numCols){
-    				$k++;
-    				$option = array('rowpos' => $k, 'colpos' => 1);
+                            $k++;
+                            $option = array('rowpos' => $k, 'colpos' => 1);
+                            $model["formoptions"] = $option;
     			}
     			$k++;
     			$j=1;
+                        
+                        $this->beforeShowForm .= "setTextAreaForm(form,'tr_".$col."');";
     		}
 
     		if($value['readOnly'])
@@ -169,6 +175,7 @@ class Grid extends DBManager
     		$colmodel[] = $model;
     		$model = array();
     	}
+        
     	
     	$colmodel[] = array('name'=>'TableAction',
 			    			'index'=>'TableAction',
@@ -178,7 +185,7 @@ class Grid extends DBManager
 			    			'editoptions'=> array('value' => $this->table),
 			    			'hidden'=>true
 			    		);
-    	//echo "<pre>"; print_r($colmodel); echo "</pre>";
+        
     	$this->ColModel = str_ireplace('"@',"",json_encode($colmodel));
     	$this->ColModel = str_ireplace('@"',"",$this->ColModel);
     }
@@ -202,63 +209,68 @@ class Grid extends DBManager
     	else
     		$postData = "";
     	
-		$grid = 'jQuery(document).ready(function(){
-					$grid = jQuery("#' . $this->view . '"),
-							initDateEdit = function (elem) {						
-								jQuery(elem).datepicker({
-									dateFormat: "dd-M-yy",
-									autoSize: true,
-									changeYear: true,
-									changeMonth: true,
-									showButtonPanel: true,
-									showWeek: true
-								});
-							},
-							numberTemplate = {formatter: "number", align: "right", sorttype: "number",
-							editrules: {number: true, required: true},
-							searchoptions: { sopt: ["eq", "ne", "lt", "le", "gt", "ge", "nu", "nn", "in", "ni"] }
-						};
-    				$grid.jqGrid({						
-							url:"admin-ajax.php",
-							datatype: "json",
-							mtype: "POST",
-							postData : {
-								action: "action",
-								id: "' . $this->view . '"
-								'. $postData.'
-							},
-							//colNames:'.json_encode($this->colnames).',					
-							colModel:'.$this->ColModel.',
-							rowNum:'. $this->params["numRows"].',
-							rowList: ['. $this->params["numRows"] .', '. ($this->params["numRows"] * 2) .', '. ($this->params["numRows"] * 3) .'],
-							pager: "#' . $this->view . 'Pager",						
-							sortname: "'. $this->params["sortname"].'",
-							viewrecords: true,
-							sortorder: "desc",
-							viewrecords: true,
-							gridview: true,
-							height: "100%",
-							autowidth: true,
-							caption:"' . $this->loc->getWord($this->view) . '",
-							beforeRequest: function() {
-						        responsive_jqgrid(jQuery(".jqGrid"));
-						    }';
-		
-						if(array_key_exists('actions', $this->params))
-						{
-							foreach ($this->params['actions'] as $key => $value){
-								$grid .= ',' . $value["type"] .': '. $value["function"];
-							}
-						}						    
-						   
-						$grid .= '});
-						jQuery("#' . $this->view . '").jqGrid("navGrid","#' . $this->view . 'Pager",
-								{edit:true,add:true,del:false},{width: "99%"}, {width: "99%"}
-							);
-    			})
-			';
-				
-		echo  $grid;
+            $grid = 'jQuery(document).ready(function(){
+                        $grid = jQuery("#' . $this->view . '"),
+                                        initDateEdit = function (elem) {						
+                                                jQuery(elem).datepicker({
+                                                        dateFormat: "dd-M-yy",
+                                                        autoSize: true,
+                                                        changeYear: true,
+                                                        changeMonth: true,
+                                                        showButtonPanel: true,
+                                                        showWeek: true
+                                                });
+                                        },
+                                        numberTemplate = {formatter: "number", align: "right", sorttype: "number",
+                                        editrules: {number: true, required: true},
+                                        searchoptions: { sopt: ["eq", "ne", "lt", "le", "gt", "ge", "nu", "nn", "in", "ni"] }
+                                };
+                        $grid.jqGrid({						
+                                        url:"admin-ajax.php",
+                                        datatype: "json",
+                                        mtype: "POST",
+                                        postData : {
+                                                action: "action",
+                                                id: "' . $this->view . '"
+                                                '. $postData.'
+                                        },
+                                        //colNames:'.json_encode($this->colnames).',					
+                                        colModel:'.$this->ColModel.',
+                                        rowNum:'. $this->params["numRows"].',
+                                        rowList: ['. $this->params["numRows"] .', '. ($this->params["numRows"] * 2) .', '. ($this->params["numRows"] * 3) .'],
+                                        pager: "#' . $this->view . 'Pager",						
+                                        sortname: "'. $this->params["sortname"].'",
+                                        viewrecords: true,
+                                        sortorder: "desc",
+                                        viewrecords: true,
+                                        gridview: true,
+                                        height: "100%",
+                                        autowidth: true,
+                                        caption:"' . $this->loc->getWord($this->view) . '",
+                                        beforeRequest: function() {
+                                            responsive_jqgrid(jQuery(".jqGrid"));
+                                        }';
+
+                                if(array_key_exists('actions', $this->params))
+                                {
+                                        foreach ($this->params['actions'] as $key => $value){
+                                                $grid .= ',' . $value["type"] .': '. $value["function"];
+                                        }
+                                }						    
+
+                                $grid .= '});
+                                jQuery("#' . $this->view . '").jqGrid("navGrid","#' . $this->view . 'Pager",
+                                                {edit:true,add:true,del:true},{width: "99%"';
+                                if(empty($this->beforeShowForm)){
+                                    $grid .=     '});';
+                                }
+                                else{
+                                    $grid .=     ',beforeShowForm:function(form){'.$this->beforeShowForm.'}});';
+                                }
+
+            $grid .= '})';
+
+            echo  $grid;
 	}
 }
 ?>
