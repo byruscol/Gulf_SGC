@@ -48,19 +48,19 @@ class Grid extends DBManager
 		$replaceBlank = array('"','{','}','[');
 		$replaceSemicolon = array(',',']');
 		
-		$DataArray = str_ireplace($replaceBlank,'',json_encode($DataArray));
+		$DataArray = str_ireplace($replaceBlank,'',json_encode($DataArray, JSON_UNESCAPED_UNICODE));
 		$DataArray = str_ireplace($replaceSemicolon,';',$DataArray);
 	
 		return $DataArray;
 	}
 	
     function colModelFromTable(){
-    	$countCols = count($this->entity);
+    	$countCols = count($this->entity["atributes"]);
     	$j=1;
     	$k=1;
     	$numCols = 2;
     	
-    	foreach ($this->entity as $col => $value){
+    	foreach ($this->entity["atributes"] as $col => $value){
     		$this->colnames[] = $col;
     		
     		$hidden = (isset($value['hidden']) && $value['hidden'] == true)? true: false;
@@ -176,16 +176,6 @@ class Grid extends DBManager
     		$model = array();
     	}
         
-    	
-    	$colmodel[] = array('name'=>'TableAction',
-			    			'index'=>'TableAction',
-			    			'align' => center,
-			    			'editable' => true,
-			    			'editrules'=> array('edithidden'=> false ),
-			    			'editoptions'=> array('value' => $this->table),
-			    			'hidden'=>true
-			    		);
-        
     	$this->ColModel = str_ireplace('"@',"",json_encode($colmodel));
     	$this->ColModel = str_ireplace('@"',"",$this->ColModel);
     }
@@ -246,6 +236,7 @@ class Grid extends DBManager
                                         gridview: true,
                                         height: "100%",
                                         autowidth: true,
+                                        editurl: "'.$this->pluginURL.'edit.php?controller='.$this->view.'",
                                         caption:"' . $this->loc->getWord($this->view) . '",
                                         beforeRequest: function() {
                                             responsive_jqgrid(jQuery(".jqGrid"));
@@ -261,12 +252,11 @@ class Grid extends DBManager
                                 $grid .= '});
                                 jQuery("#' . $this->view . '").jqGrid("navGrid","#' . $this->view . 'Pager",
                                                 {edit:true,add:true,del:true},{width: "99%"';
-                                if(empty($this->beforeShowForm)){
-                                    $grid .=     '});';
+                                if(!empty($this->beforeShowForm)){
+                                    $grid .=     ',beforeShowForm:function(form){'.$this->beforeShowForm.'}';
                                 }
-                                else{
-                                    $grid .=     ',beforeShowForm:function(form){'.$this->beforeShowForm.'}});';
-                                }
+                                
+                                $grid .=', closeAfterEdit: true, closeAfterAdd: true});';
 
             $grid .= '})';
 

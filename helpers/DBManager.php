@@ -8,30 +8,34 @@ abstract class DBManager{
 	public $pluginPath;
 	public $pluginURL;
 	protected $query;
+        protected $DBOper = array("table" => "", "data" => array(), "filter" => array());
 	protected $totalRows;
 	protected $queryType;
 	protected $LastId;
 	protected $result;
+        protected $currentUser;
 	
 	function __construct() {
 		global $wpdb;
 		global $pluginURL;
 		global $pluginPath;
 		global $prefixPlugin;
+                global $current_user;
 		$this->conn = $wpdb;
 		$this->pluginURL = $pluginURL;
 		$this->pluginPath = $pluginPath;
 		$this->wpPrefix = $this->conn->prefix;
 		$this->pluginPrefix = $this->wpPrefix;
 		if(!empty($prefixPlugin)) $this->pluginPrefix .= $prefixPlugin;
+                $this->currentUser = $current_user;
 	}
 	
 	function __destruct() {}
 	
-	
 	public function getDataGrid($query = "SELECT 1 FROM dual", $start = null, $limit = null, $colSort = null, $sortDirection = null)
 	{
-		$queryBuild = $query;
+		$this->queryType = (empty($this->queryType))? "rows" : $this->queryType;
+                $queryBuild = $query;
 		
 		if($colSort != null)
 			$queryBuild .= " ORDER BY " . $colSort;
@@ -42,10 +46,10 @@ abstract class DBManager{
 		if($start != null && $limit != null)
 			$queryBuild .= " LIMIT " . $start . " , " . $limit;
 
-		return $this->get($queryBuild, "rows");
+		return $this->get($queryBuild, $this->queryType);
 	}
 	
-	protected function get($query, $type)
+        protected function get($query, $type)
 	{
 		$this->query = $query;
 		$this->queryType = $type;
@@ -77,6 +81,7 @@ abstract class DBManager{
 	
 	protected function executeQuery() {
 		$this->standardQuery();
+                
 		switch($this->queryType)
 		{
 			case "var": $this->result = $this->conn->get_var( $this->query ); break;
@@ -84,30 +89,88 @@ abstract class DBManager{
 			case "rows":$this->result = $this->conn->get_results($this->query, OBJECT); break;
 		}
 		
-		foreach ($this->result as $key => $value)
-		{
-			foreach ($value as $k => $v){
-				$this->result[$key]->$k =  utf8_encode(htmlentities($v));
-			}
-		}
-		
 		$this->getTotalRows();
 	}
 	
 	protected function execute() {
-		try {
-			switch($this->queryType)
-			{
-				case "add": $this->result = $this->conn->insert( $this->query["table"], $this->query["data"]); $this->$LastId = $this->conn->insert_id;break;
-				case "upd": $this->result = $this->conn->update( $this->query["table"], $this->query["data"], $this->query["filter"]); break;
-				case "del": $this->result = $this->conn->delete( $this->query["table"], $this->query["filter"]); break;
-				default: $this->executeQuery();
-			}
+            
+            try {
+                    switch($this->queryType)
+                    {
+                        case "add": $this->result = $this->conn->insert( $this->DBOper["table"], $this->DBOper["data"]); $this->LastId = $this->conn->insert_id;break;
+                        case "edit": $this->result = $this->conn->update( $this->DBOper["table"], $this->DBOper["data"], $this->DBOper["filter"]); break;
+                        case "del": $this->result = $this->conn->delete( $this->DBOper["table"], $this->DBOper["filter"]); break;
+                        default: $this->executeQuery();
+                    }
+                    
+                    $this->queryType = "";
 		}
 		catch (Exception $e)
 		{
-			$this->result = "Error: ".$e->getMessage();
+                    $this->result = "Error: ".$e->getMessage();
 		}
 	}
+
+        protected function updateRecord($entity, $newRecord, $filters){
+            if ( ! is_array( $newRecord ) || ! is_array( $filters ))
+		return false;
+            
+            $updateData = array();
+            $auditData = array();
+            
+            $cols = array();
+            $where = array();
+            $ws = array();
+            
+            $query = "SELECT {COLS} from ".$entity["tableName"]." WHERE {WHERE}";
+            
+            foreach($entity["atributes"] as $key => $value){
+                $cols[] = $key;
+                if(array_key_exists($key, $filters))
+                    $where[$key] = $filters[$key];
+            }
+
+            foreach($where as $key => $value){
+                $ws[] = $key ." = ". $value;
+            }
+            
+            $query = str_replace("{COLS}", (implode(",", $cols)), $query);
+            $query = str_replace("{WHERE}", (implode(" AND ", $ws)), $query);
+
+            $this->queryType = "row";
+            $currentRecord = $this->getDataGrid($query);
+            
+            foreach($entity["atributes"] as $key => $value){
+                if(stripslashes($newRecord[$key]) != $currentRecord["data"]->$key){
+                    $updateData[$key] = stripslashes($newRecord[$key]);
+                    $auditData[] = array( 
+                                       "table" => $entity["tableName"]
+                                       ,"column" => $key
+                                       ,"data" => stripslashes($currentRecord["data"]->$key)
+                                       ,"action" => "edit"
+                                       ,"date" => date("Y-m-d H:i:s",time())
+                                       ,"user" => $this->currentUser->user_login
+                                    );
+                }
+            }
+            
+            if(count($updateData) > 0)
+            {
+                $this->queryType = "add";
+                $this->DBOper["table"] = $this->pluginPrefix."audit";
+                foreach($auditData as $key => $value){
+                    $this->DBOper["data"]  = $value;
+                    $this->execute();
+                }
+                
+                $this->queryType = "edit";
+                $this->DBOper["table"] = $entity["tableName"];
+                $this->DBOper["filter"] = $where;
+                $this->DBOper["data"]  = $updateData;
+
+                $this->execute();
+            }
+        }
+        
 }
 ?>

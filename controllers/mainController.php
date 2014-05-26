@@ -12,8 +12,8 @@ class mainController
 	private $controllerName;
 	private $headScripts = array();
 	
-	function __construct($controller = "basic") {
-		
+	function __construct($controller = "basic", $showView = true) {
+
 		global $prefixPlugin;
 		global $pluginURL;
 		global $pluginPath;
@@ -23,29 +23,33 @@ class mainController
 		$this->pluginPath = $pluginPath;
 		$controllerFile = $this->pluginPath."/models/".$controller."Model.php";
 		
-		if(file_exists($controllerFile)){
+		if(file_exists($controllerFile)){ 
 			require_once($controllerFile);
 		}
 		else
 		{
-			$controller = "basic";
-			require_once($this->pluginPath. "/models/basicModel.php");
+                    $controller = "basic"; //echo "ok2";
+                    require_once($this->pluginPath. "/models/basicModel.php");
 		}
 		
 		$this->model = new $controller();
-		
-		$this->view = $controller."View";
 		$this->controllerName = $controller;
 		
 		$this->PrefixPlugin = $this->model->pluginPrefix;
 				
 		if(substr_count($_SERVER["SCRIPT_NAME"], "admin-ajax") == 0)
 		{
-			add_action('admin_head', array($this, 'setHeadScripts'));
-			add_action('admin_head', array($this, 'viewJSScripts'));
+                    if($showView){
+                        add_action('admin_head', array($this, 'setHeadScripts'));
+                        add_action('admin_head', array($this, 'viewJSScripts'));
+                    }
 		}
-		add_action( 'admin_menu', array($this, 'Plugin_menu') );
-		add_action( 'wp_ajax_action', array($this, 'action_callback'));
+                
+                if($showView){
+                    $this->view = $controller."View";
+                    add_action( 'admin_menu', array($this, 'Plugin_menu') );
+                    add_action( 'wp_ajax_action', array($this, 'action_callback'));
+                }
 	}
 	
 	function __destruct() {
@@ -174,9 +178,12 @@ class mainController
 			}
 			$j = 0;
 		}
-		echo json_encode($responce);
+		echo json_encode($responce, JSON_UNESCAPED_UNICODE);
 		die();
 	}
-
+        
+        function editOper($oper){
+            $this->model->$oper();
+        }
 }
 ?>
