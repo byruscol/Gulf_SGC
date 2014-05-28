@@ -17,12 +17,13 @@ class nonConformity extends DBManagerModel{
     }
 
     public function add(){
+        $this->addRecord($this->entity(), $_POST, array("date_entered" => date("Y-m-d H:i:s"), "created_by" => $this->currentUser->ID));
     }
     public function edit(){
         $this->updateRecord($this->entity(), $_POST, array("nonConformityId" => $_POST["nonConformityId"]));
     }
     public function del(){
-
+        $this->delRecord($this->entity(), array("nonConformityId" => $_POST["id"]));
     }
 
     public function entity()
@@ -30,7 +31,7 @@ class nonConformity extends DBManagerModel{
             $data = array(
                             "tableName" => $this->pluginPrefix."nonConformities"
                             ,"atributes" => array(
-                                "nonConformityId" => array("type" => "int", "PK" => 0, "required" => false, "readOnly" => true )
+                                "nonConformityId" => array("type" => "int", "PK" => 0, "required" => false, "readOnly" => true, "autoIncrement" => true )
                                 ,"name" => array("type" => "varchar", "required" => true)
                                 ,"description" => array("type" => "text", "required" => true, "text" => true)
                                 ,"estadonc" => array("type" => "tinyint", "required" => true, "references" => array("table" => $this->pluginPrefix."status", "id" => "statusid", "text" => "status"))

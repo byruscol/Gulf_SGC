@@ -7,14 +7,14 @@ abstract class DBManager{
 	public $wpPrefix;
 	public $pluginPath;
 	public $pluginURL;
+        public $currentUser;
 	protected $query;
         protected $DBOper = array("table" => "", "data" => array(), "filter" => array());
 	protected $totalRows;
 	protected $queryType;
 	protected $LastId;
 	protected $result;
-        protected $currentUser;
-	
+        
 	function __construct() {
 		global $wpdb;
 		global $pluginURL;
@@ -110,22 +110,41 @@ abstract class DBManager{
                     $this->result = "Error: ".$e->getMessage();
 		}
 	}
-
-        protected function updateRecord($entity, $newRecord, $filters){
-            if ( ! is_array( $newRecord ) || ! is_array( $filters ))
+        
+        protected function addRecord($entity, $newRecord, $auditData){
+            if ( ! is_array( $newRecord ) || ! is_array( $auditData ))
 		return false;
             
-            $updateData = array();
-            $auditData = array();
+            $insert = false;
+            $addData = $auditData;
             
+            foreach($entity["atributes"] as $key => $value){
+                if(!array_key_exists("autoIncrement", $value) || !$value["autoIncrement"]){
+                    $addData[$key] = empty($newRecord[$key])? null:$newRecord[$key];
+                    $insert = true;
+                }
+            }
+            
+            if($insert){
+                $this->queryType = "add";
+                $this->DBOper["table"] = $entity["tableName"];
+                $this->DBOper["data"]  = $addData;
+
+                $this->execute();
+            }
+        }
+        
+        private function getCurrentRecod($entity, $filters){
             $cols = array();
             $where = array();
             $ws = array();
+            $PK = array();
             
             $query = "SELECT {COLS} from ".$entity["tableName"]." WHERE {WHERE}";
             
             foreach($entity["atributes"] as $key => $value){
                 $cols[] = $key;
+                
                 if(array_key_exists($key, $filters))
                     $where[$key] = $filters[$key];
             }
@@ -140,13 +159,64 @@ abstract class DBManager{
             $this->queryType = "row";
             $currentRecord = $this->getDataGrid($query);
             
+            return array("currentRecord" => $currentRecord, "where" => $where);
+        }
+        
+        protected function delRecord($entity, $filters){
+            
+            $PK = array();
+            $currentRecord = $this->getCurrentRecod($entity, $filters);
             foreach($entity["atributes"] as $key => $value){
-                if(stripslashes($newRecord[$key]) != $currentRecord["data"]->$key){
+                
+                if(array_key_exists("PK", $value))
+                    $PK[] = $currentRecord["currentRecord"]["data"]->$key;
+            }
+            $pkId = implode(",", $PK);
+            
+            foreach($currentRecord["currentRecord"]["data"] as $key => $value){
+                $this->queryType = "add";
+                $this->DBOper["table"] = $this->pluginPrefix."audit";
+                $this->DBOper["data"] = array( 
+                                            "table" => $entity["tableName"]
+                                            ,"column" => $key
+                                            ,"data" => stripslashes($value)
+                                            ,"action" => "del"
+                                            ,"date" => date("Y-m-d H:i:s",time())
+                                            ,"user" => $this->currentUser->user_login
+                                            ,"PK" => $pkId
+                                         );
+
+                $this->execute();
+            }
+            
+            $this->queryType = "edit";
+            $this->DBOper["data"]  = array("deleted" => 1);
+            $this->DBOper["table"] = $entity["tableName"];
+            $this->DBOper["filter"] = $filters;
+            $this->execute();
+        }
+        
+        protected function updateRecord($entity, $newRecord, $filters){
+            if ( ! is_array( $newRecord ) || ! is_array( $filters ))
+		return false;
+            
+            $updateData = array();
+            $auditData = array();
+            $PK = array();
+            
+            $currentRecord = $this->getCurrentRecod($entity, $filters);
+            
+            foreach($entity["atributes"] as $key => $value){
+                
+                if(array_key_exists("PK", $value))
+                    $PK[] = $currentRecord["currentRecord"]["data"]->$key;
+                
+                if(stripslashes($newRecord[$key]) != $currentRecord["currentRecord"]["data"]->$key){
                     $updateData[$key] = stripslashes($newRecord[$key]);
                     $auditData[] = array( 
                                        "table" => $entity["tableName"]
                                        ,"column" => $key
-                                       ,"data" => stripslashes($currentRecord["data"]->$key)
+                                       ,"data" => stripslashes($currentRecord["currentRecord"]["data"]->$key)
                                        ,"action" => "edit"
                                        ,"date" => date("Y-m-d H:i:s",time())
                                        ,"user" => $this->currentUser->user_login
@@ -156,16 +226,20 @@ abstract class DBManager{
             
             if(count($updateData) > 0)
             {
-                $this->queryType = "add";
-                $this->DBOper["table"] = $this->pluginPrefix."audit";
+                
+                $pkId = implode(",", $PK);
                 foreach($auditData as $key => $value){
-                    $this->DBOper["data"]  = $value;
+                    $this->queryType = "add";
+                    $this->DBOper["table"] = $this->pluginPrefix."audit";
+                    $this->DBOper["data"] = $value;
+                    $this->DBOper["data"]["PK"] = $pkId;
+                    
                     $this->execute();
                 }
                 
                 $this->queryType = "edit";
                 $this->DBOper["table"] = $entity["tableName"];
-                $this->DBOper["filter"] = $where;
+                $this->DBOper["filter"] = $currentRecord["where"];
                 $this->DBOper["data"]  = $updateData;
 
                 $this->execute();
