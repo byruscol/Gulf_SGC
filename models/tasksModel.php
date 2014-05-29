@@ -37,11 +37,14 @@ class tasks extends DBManagerModel{
     }
 
     public function add(){
+        $this->addRecord($this->entity(), $_POST, array("date_entered" => date("Y-m-d H:i:s"), "created_by" => $this->currentUser->ID));
+        echo $this->LastId;
     }
     public function edit(){
+        $this->updateRecord($this->entity(), $_POST, array("nonConformityId" => $_POST["nonConformityId"]));
     }
     public function del(){
-
+        $this->delRecord($this->entity(), array("nonConformityId" => $_POST["id"]));
     }
 
     public function entity()
@@ -59,6 +62,7 @@ class tasks extends DBManagerModel{
                             ,"date_start" => array("type" => "datetime", "required" => true)
                             ,"date_due" => array("type" => "datetime", "required" => true)
                             ,"description" => array("type" => "varchar", "required" => true, "text" => true)
+                            ,"parentId" => array("type" => "int","required" => false, "hidden" => true, "isTableCol" => false)
                         )
                 );
         return $data;

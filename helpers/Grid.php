@@ -151,8 +151,13 @@ class Grid extends DBManager
     		
     				break;
     		}
-    		
-    		if($value['text']){
+                
+                switch($col){
+                    case "parentId": $model["editoptions"]["defaultValue"] = "@function(g){return this.p.postData.filter}@"; break;
+                    case "parentRelationShip": $model["editoptions"]["defaultValue"] = "@function(g){return this.p.postData.parent}@"; break;
+                }
+                
+                if($value['text']){
     			$model["edittype"] = "textarea";
     			$model["editoptions"]["rows"] = 6; 
     			$model["editoptions"]["cols"] = 50;

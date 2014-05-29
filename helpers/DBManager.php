@@ -117,14 +117,15 @@ abstract class DBManager{
             
             $insert = false;
             $addData = $auditData;
-            
             foreach($entity["atributes"] as $key => $value){
-                if(!array_key_exists("autoIncrement", $value) || !$value["autoIncrement"]){
+                if((!array_key_exists("autoIncrement", $value) || !$value["autoIncrement"])
+                    && !array_key_exists($key, $addData)
+                    && (!array_key_exists("isTableCol", $value) || $value["isTableCol"])){
                     $addData[$key] = empty($newRecord[$key])? null:$newRecord[$key];
                     $insert = true;
                 }
             }
-            
+            print_r($addData);
             if($insert){
                 $this->queryType = "add";
                 $this->DBOper["table"] = $entity["tableName"];

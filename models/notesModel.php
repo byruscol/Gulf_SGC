@@ -10,7 +10,7 @@ class notes extends DBManagerModel{
                 $params["filter"] = 0;
 
         $start = $params["limit"] * $params["page"] - $params["limit"];
-        $query = "SELECT  `noteId`, `name`, `date_entered`, `display_name` AS created_by, `noteTypeId`,  `description` 
+        $query = "SELECT  `noteId`, `name`, `date_entered`, `display_name` AS created_by, `noteTypeId`,  `description`, ". $params["parent"] ." parentId, '". $params["parentRelationShip"] ."' parentRelationShip  
                           FROM  `".$entity["tableName"]."` n
                           JOIN ".$this->wpPrefix."users u ON u.ID = n.created_by
                           WHERE  `noteId` IN ( ". $params["filter"] ." )";
@@ -28,7 +28,9 @@ class notes extends DBManagerModel{
             foreach ( $responce["data"] as $k => $v ){
                     $DataArray[] = $responce["data"][$k]->noteId;
             }
-
+            
+            $params["parentRelationShip"] = "nonConformity";
+            $params["parent"] = $params["filter"];
             $params["filter"] = implode(",", $DataArray);
 
             $data = $this->getList($params);
@@ -36,27 +38,46 @@ class notes extends DBManagerModel{
     }
 
     public function add(){
+        $entityObj = $this->entity();
+        print_r($_POST);
+        //$this->addRecord($entityObj, $_POST, array("date_entered" => date("Y-m-d H:i:s"), "created_by" => $this->currentUser->ID));
+        //$this->addRecord($entityObj[""], array("noteId" => $this->LastId), array("date_entered" => date("Y-m-d H:i:s"), "created_by" => $this->currentUser->ID));
     }
     public function edit(){
+        $this->updateRecord($this->entity(), $_POST, array("nonConformityId" => $_POST["nonConformityId"]));
     }
     public function del(){
-
+        $this->delRecord($this->entity(), array("nonConformityId" => $_POST["id"]));
     }
 
     public function entity()
     {
         $data = array(
-                    "tableName" => $this->pluginPrefix."notes"
-                    ,atributes => array(
-                        "noteId" => array("type" => "int", "PK" => 0, "required" => false, "readOnly" => true )
-                        ,"name" => array("type" => "varchar", "required" => true)
-                        ,"date_entered" => array("type" => "datetime", "required" => false, "readOnly" => true )
-                        ,"created_by" => array("type" => "varchar", "required" => false, "readOnly" => true)
-                        ,"noteTypeId" => array("type" => "int", "required" => true, "references" => array("table" => $this->pluginPrefix."noteTypes", "id" => "noteTypeId", "text" => "noteType"))
-                        ,"description" => array("type" => "varchar", "required" => true, "text" => true)
-                    )
-                );
+                        "tableName" => $this->pluginPrefix."notes"
+                        ,"atributes" => array(
+                                        "noteId" => array("type" => "int", "PK" => 0, "required" => false, "readOnly" => true, "autoIncrement" => true )
+                                        ,"name" => array("type" => "varchar", "required" => true)
+                                        ,"date_entered" => array("type" => "datetime", "required" => false, "readOnly" => true )
+                                        ,"created_by" => array("type" => "varchar", "required" => false, "readOnly" => true)
+                                        ,"noteTypeId" => array("type" => "int", "required" => true, "references" => array("table" => $this->pluginPrefix."noteTypes", "id" => "noteTypeId", "text" => "noteType"))
+                                        ,"description" => array("type" => "varchar", "required" => true, "text" => true)
+                                        ,"parentId" => array("type" => "int","required" => false, "hidden" => true, "isTableCol" => false)
+                                        ,"parentRelationShip" => array("type" => "varchar","required" => false, "hidden" => true, "isTableCol" => false)
+                                    )
+                        ,"relationship" => array(
+                                        "nonConformity" => array(
+                                                            "tableName" => $this->pluginPrefix."nonConformities_notes"
+                                                            ,"parent" => array("tableName" => $this->pluginPrefix."nonConformities", "Id" => "nonConformityId")
+                                                            ,"atributes" => array(
+                                                                            "nonConformityId" => array("type" => "int", "PK" => 0)
+                                                                            ,"noteId" => array("type" => "int", "PK" => 0)
+                                                                        )
+                                                        )
+                                    )
+                    );
         return $data;
     }
+    
+    
 }
 ?>
