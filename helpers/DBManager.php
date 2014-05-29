@@ -125,7 +125,7 @@ abstract class DBManager{
                     $insert = true;
                 }
             }
-            print_r($addData);
+            
             if($insert){
                 $this->queryType = "add";
                 $this->DBOper["table"] = $entity["tableName"];

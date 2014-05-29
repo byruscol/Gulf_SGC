@@ -39,9 +39,10 @@ class notes extends DBManagerModel{
 
     public function add(){
         $entityObj = $this->entity();
-        print_r($_POST);
-        //$this->addRecord($entityObj, $_POST, array("date_entered" => date("Y-m-d H:i:s"), "created_by" => $this->currentUser->ID));
-        //$this->addRecord($entityObj[""], array("noteId" => $this->LastId), array("date_entered" => date("Y-m-d H:i:s"), "created_by" => $this->currentUser->ID));
+        $relEntity = $entityObj["relationship"][$_POST["parentRelationShip"]];
+        
+        $this->addRecord($entityObj, $_POST, array("date_entered" => date("Y-m-d H:i:s"), "created_by" => $this->currentUser->ID));
+        $this->addRecord($relEntity, array($relEntity["parent"]["Id"] => $_POST["parentId"],"noteId" => $this->LastId), array());
     }
     public function edit(){
         $this->updateRecord($this->entity(), $_POST, array("nonConformityId" => $_POST["nonConformityId"]));
