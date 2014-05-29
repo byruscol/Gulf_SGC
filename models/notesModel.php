@@ -13,7 +13,7 @@ class notes extends DBManagerModel{
         $query = "SELECT  `noteId`, `name`, `date_entered`, `display_name` AS created_by, `noteTypeId`,  `description`, ". $params["parent"] ." parentId, '". $params["parentRelationShip"] ."' parentRelationShip  
                           FROM  `".$entity["tableName"]."` n
                           JOIN ".$this->wpPrefix."users u ON u.ID = n.created_by
-                          WHERE  `noteId` IN ( ". $params["filter"] ." )";
+                          WHERE  deleted = 0 AND `noteId` IN ( ". $params["filter"] ." )";
 
         return $this->getDataGrid($query, $start, $params["limit"] , $params["sidx"], $params["sord"] );
     }
@@ -45,10 +45,10 @@ class notes extends DBManagerModel{
         $this->addRecord($relEntity, array($relEntity["parent"]["Id"] => $_POST["parentId"],"noteId" => $this->LastId), array());
     }
     public function edit(){
-        $this->updateRecord($this->entity(), $_POST, array("nonConformityId" => $_POST["nonConformityId"]));
+        $this->updateRecord($this->entity(), $_POST, array("noteId" => $_POST["noteId"]));
     }
     public function del(){
-        $this->delRecord($this->entity(), array("nonConformityId" => $_POST["id"]));
+        $this->delRecord($this->entity(), array("noteId" => $_POST["id"]));
     }
 
     public function entity()
@@ -59,7 +59,7 @@ class notes extends DBManagerModel{
                                         "noteId" => array("type" => "int", "PK" => 0, "required" => false, "readOnly" => true, "autoIncrement" => true )
                                         ,"name" => array("type" => "varchar", "required" => true)
                                         ,"date_entered" => array("type" => "datetime", "required" => false, "readOnly" => true )
-                                        ,"created_by" => array("type" => "varchar", "required" => false, "readOnly" => true)
+                                        ,"created_by" => array("type" => "varchar", "required" => false, "readOnly" => true, "update" => false)
                                         ,"noteTypeId" => array("type" => "int", "required" => true, "references" => array("table" => $this->pluginPrefix."noteTypes", "id" => "noteTypeId", "text" => "noteType"))
                                         ,"description" => array("type" => "varchar", "required" => true, "text" => true)
                                         ,"parentId" => array("type" => "int","required" => false, "hidden" => true, "isTableCol" => false)

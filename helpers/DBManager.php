@@ -135,7 +135,7 @@ abstract class DBManager{
             }
         }
         
-        private function getCurrentRecod($entity, $filters){
+        private function getCurrentRecord($entity, $filters){
             $cols = array();
             $where = array();
             $ws = array();
@@ -144,6 +144,9 @@ abstract class DBManager{
             $query = "SELECT {COLS} from ".$entity["tableName"]." WHERE {WHERE}";
             
             foreach($entity["atributes"] as $key => $value){
+                
+                if((!array_key_exists("isTableCol", $value) || $value["isTableCol"])
+                   && (!array_key_exists("autoIncrement", $value) || !$value["autoIncrement"]))
                 $cols[] = $key;
                 
                 if(array_key_exists($key, $filters))
@@ -166,11 +169,11 @@ abstract class DBManager{
         protected function delRecord($entity, $filters){
             
             $PK = array();
-            $currentRecord = $this->getCurrentRecod($entity, $filters);
+            $currentRecord = $this->getCurrentRecord($entity, $filters);
             foreach($entity["atributes"] as $key => $value){
                 
                 if(array_key_exists("PK", $value))
-                    $PK[] = $currentRecord["currentRecord"]["data"]->$key;
+                    $PK[] = $filters[$key];
             }
             $pkId = implode(",", $PK);
             
@@ -205,14 +208,17 @@ abstract class DBManager{
             $auditData = array();
             $PK = array();
             
-            $currentRecord = $this->getCurrentRecod($entity, $filters);
+            $currentRecord = $this->getCurrentRecord($entity, $filters);
             
             foreach($entity["atributes"] as $key => $value){
                 
                 if(array_key_exists("PK", $value))
-                    $PK[] = $currentRecord["currentRecord"]["data"]->$key;
+                    $PK[] = $newRecord[$key];
                 
-                if(stripslashes($newRecord[$key]) != $currentRecord["currentRecord"]["data"]->$key){
+                if(stripslashes($newRecord[$key]) != $currentRecord["currentRecord"]["data"]->$key
+                   && (!array_key_exists("isTableCol", $value) || $value["isTableCol"])
+                   && (!array_key_exists("autoIncrement", $value) || !$value["autoIncrement"])
+                   && (!array_key_exists("update", $value) || $value["update"]) ){
                     $updateData[$key] = stripslashes($newRecord[$key]);
                     $auditData[] = array( 
                                        "table" => $entity["tableName"]
