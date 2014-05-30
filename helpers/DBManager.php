@@ -102,7 +102,11 @@ abstract class DBManager{
                         case "del": $this->result = $this->conn->delete( $this->DBOper["table"], $this->DBOper["filter"]); break;
                         default: $this->executeQuery();
                     }
+                    $queryFail = $this->conn->print_error();
+                    if(!empty($queryFail))
+                        echo $queryFail . " - SQL:[".$this->conn->last_query."]";
                     
+                    $this->conn->last_query;
                     $this->queryType = "";
 		}
 		catch (Exception $e)
@@ -230,7 +234,7 @@ abstract class DBManager{
                                     );
                 }
             }
-            
+            //print_r($updateData);
             if(count($updateData) > 0)
             {
                 

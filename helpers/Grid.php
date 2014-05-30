@@ -157,6 +157,16 @@ class Grid extends DBManager
                     case "parentRelationShip": $model["editoptions"]["defaultValue"] = "@function(g){return this.p.postData.parent}@"; break;
                 }
                 
+                if((!array_key_exists('readOnly', $value) || !$value['readOnly'])
+                    && ($colType == "date")){
+                        $model["editoptions"]["defaultValue"] = "@function(g){return '".date("Y-m-d", time())."'}@";
+                    }
+                
+                if((!array_key_exists('readOnly', $value) || !$value['readOnly'])
+                    && ($colType == "datetime")){
+                        $model["editoptions"]["defaultValue"] = "@function(g){return '".date("Y-m-d H:i:s", time())."'}@";
+                    }
+                
                 if($value['text']){
     			$model["edittype"] = "textarea";
     			$model["editoptions"]["rows"] = 6; 
@@ -174,7 +184,7 @@ class Grid extends DBManager
     		}
 
     		if($value['readOnly'])
-    			$model["editoptions"]["dataInit"] = "@function(element) { jQuery(element).attr('readonly', 'readonly');}@";
+                    $model["editoptions"]["dataInit"] = "@function(element) { jQuery(element).attr('readonly', 'readonly');}@";
     		
     		$j++;
     		$colmodel[] = $model;
@@ -204,17 +214,20 @@ class Grid extends DBManager
     	else
     		$postData = "";
     	
-            $grid = 'jQuery(document).ready(function(){
+            $grid = 'jQuery(document).ready(function($){
                         $grid = jQuery("#' . $this->view . '"),
-                                        initDateEdit = function (elem) {						
-                                                jQuery(elem).datepicker({
-                                                        dateFormat: "dd-M-yy",
-                                                        autoSize: true,
-                                                        changeYear: true,
-                                                        changeMonth: true,
-                                                        showButtonPanel: true,
-                                                        showWeek: true
-                                                });
+                                        initDateEdit = function (elem) {
+                                                setTimeout(function () {
+                                                        $(elem).datepicker({
+                                                                dateFormat: "yy-m-dd",
+                                                                autoSize: true,
+                                                                showOn: "button", 
+                                                                changeYear: true,
+                                                                changeMonth: true,
+                                                                showButtonPanel: true,
+                                                                showWeek: true
+                                                        });        
+                                                }, 100);
                                         },
                                         numberTemplate = {formatter: "number", align: "right", sorttype: "number",
                                         editrules: {number: true, required: true},
@@ -256,12 +269,32 @@ class Grid extends DBManager
 
                                 $grid .= '});
                                 jQuery("#' . $this->view . '").jqGrid("navGrid","#' . $this->view . 'Pager",
-                                                {edit:true,add:true,del:true},{width: "99%"';
-                                if(!empty($this->beforeShowForm)){
-                                    $grid .=     ',beforeShowForm:function(form){'.$this->beforeShowForm.'}';
-                                }
+                                                {edit:true,add:true,del:true}
+                                                ,{ // edit options
+                                                    recreateForm: true,
+                                                    viewPagerButtons: true,
+                                                    width:"99%",
+                                                    reloadAfterSubmit:true,
+                                                    closeAfterEdit: true
+                                                    ,beforeShowForm:function(form){'.$this->beforeShowForm.'}
+                                                }
+                                                ,{//add options
+                                                    recreateForm: true,
+                                                    viewPagerButtons: false,
+                                                     width:"99%",
+                                                    reloadAfterSubmit:true,
+                                                    closeAfterAdd: true
+                                                    ,beforeShowForm:function(form){'.$this->beforeShowForm.'}
+                                                }
+                                                ,{//del option
+                                                    mtype:"POST",
+                                                    reloadAfterSubmit:true
+                                                }
+                                                ,{multipleSearch:true, multipleGroup:true, showQuery: true,  width:"99%"})';
+                                /*
+$grid .=',closeAfterEdit: true,  width:800, recreateForm: true, closeAfterAdd: true, reloadAfterSubmit:true}';
                                 
-                                $grid .=', closeAfterEdit: true, closeAfterAdd: true});';
+                                $grid .=',{},{},{multipleSearch:true, multipleGroup:true, showQuery: true})';                                 */
 
             $grid .= '})';
 

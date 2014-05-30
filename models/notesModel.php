@@ -78,7 +78,5 @@ class notes extends DBManagerModel{
                     );
         return $data;
     }
-    
-    
 }
 ?>

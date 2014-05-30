@@ -37,14 +37,17 @@ class tasks extends DBManagerModel{
     }
 
     public function add(){
-        $this->addRecord($this->entity(), $_POST, array("date_entered" => date("Y-m-d H:i:s"), "created_by" => $this->currentUser->ID));
-        echo $this->LastId;
+        $entityObj = $this->entity();
+        $relEntity = $entityObj["relationship"][$_POST["parentRelationShip"]];
+        
+        $this->addRecord($entityObj, $_POST, array("date_entered" => date("Y-m-d H:i:s"), "created_by" => $this->currentUser->ID));
+        $this->addRecord($relEntity, array($relEntity["parent"]["Id"] => $_POST["parentId"],"taskId" => $this->LastId), array());
     }
     public function edit(){
-        $this->updateRecord($this->entity(), $_POST, array("nonConformityId" => $_POST["nonConformityId"]));
+        $this->updateRecord($this->entity(), $_POST, array("taskId" => $_POST["taskId"]));
     }
     public function del(){
-        $this->delRecord($this->entity(), array("nonConformityId" => $_POST["id"]));
+        $this->delRecord($this->entity(), array("taskId" => $_POST["id"]));
     }
 
     public function entity()
@@ -52,18 +55,29 @@ class tasks extends DBManagerModel{
         $data = array(
                         "tableName" => $this->pluginPrefix."tasks"
                         ,"atributes" => array(
-                            "taskId" => array("type" => "int", "PK" => 0, "required" => false, "readOnly" => true )
+                            "taskId" => array("type" => "int", "PK" => 0, "required" => false, "readOnly" => true, "autoIncrement" => true )
                             ,"name" => array("type" => "varchar", "required" => true)
                             ,"status" => array("type" => "int", "required" => true, "references" => array("table" => $this->pluginPrefix."status", "id" => "statusId", "text" => "status"))
                             ,"priority" => array("type" => "int", "required" => true, "references" => array("table" => $this->pluginPrefix."priorities", "id" => "priorityId", "text" => "priority"))
                             ,"date_entered" => array("type" => "datetime", "required" => false, "readOnly" => true )
-                            ,"created_by" => array("type" => "varchar", "required" => false, "readOnly" => true)
+                            ,"created_by" => array("type" => "varchar", "required" => false, "readOnly" => true, "update" => false)
                             ,"assigned_user_id" => array("type" => "int", "required" => true, "references" => array("table" => $this->wpPrefix."users", "id" => "ID", "text" => "display_name"))
                             ,"date_start" => array("type" => "datetime", "required" => true)
                             ,"date_due" => array("type" => "datetime", "required" => true)
                             ,"description" => array("type" => "varchar", "required" => true, "text" => true)
                             ,"parentId" => array("type" => "int","required" => false, "hidden" => true, "isTableCol" => false)
+                            ,"parentRelationShip" => array("type" => "varchar","required" => false, "hidden" => true, "isTableCol" => false)
                         )
+                        ,"relationship" => array(
+                                        "nonConformity" => array(
+                                                            "tableName" => $this->pluginPrefix."nonConformities_tasks"
+                                                            ,"parent" => array("tableName" => $this->pluginPrefix."nonConformities", "Id" => "nonConformityId")
+                                                            ,"atributes" => array(
+                                                                            "nonConformityId" => array("type" => "int", "PK" => 0)
+                                                                            ,"taskId" => array("type" => "int", "PK" => 0)
+                                                                        )
+                                                        )
+                                    )
                 );
         return $data;
     }

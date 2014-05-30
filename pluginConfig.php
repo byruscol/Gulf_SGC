@@ -17,10 +17,12 @@ function getPahtFile($fileName){
 $pluginPath = dirname(__FILE__);
 $rp = explode("wp-content", $pluginPath);
 $rootPath = $rp[0];
-$protocol = empty($_SERVER['HTTPS']) ? 'http' : 'https';
-$URLPrefix = empty($_SERVER['CONTEXT_PREFIX'])? '' : $_SERVER['CONTEXT_PREFIX'];
+$prot = explode("/",$_SERVER['SERVER_PROTOCOL']);
+$protocol = strtolower($prot[0]);
+$preFX = explode("/",$_SERVER['REQUEST_URI']);
+$URLPrefix = ($preFX[1] != $_SERVER['HTTP_HOST'])? $preFX[1] : '' ;
 $pluginName = explode(DIRECTORY_SEPARATOR,__DIR__);
-$pluginURL = $protocol."://".$_SERVER['HTTP_HOST'].$URLPrefix."/wp-content/plugins/".end($pluginName)."/";
+$pluginURL = $protocol."://".$_SERVER['HTTP_HOST']."/".$URLPrefix."/wp-content/plugins/".end($pluginName)."/";
 
 $prefixPlugin = "sgc_";
 $GeographicHierarchy = array("country" => array("table" => "countries"
