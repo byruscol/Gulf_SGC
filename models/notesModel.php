@@ -15,6 +15,18 @@ class notes extends DBManagerModel{
                           JOIN ".$this->wpPrefix."users u ON u.ID = n.created_by
                           WHERE  deleted = 0 AND `noteId` IN ( ". $params["filter"] ." )";
 
+        if(array_key_exists('where', $params)){
+            if (is_array( $params["where"]->rules )){
+                $countRules = count($params["where"]->rules);
+                for($i = 0; $i < $countRules; $i++){
+                    if($params["where"]->rules[$i]->field == "created_by")
+                        $params["where"]->rules[$i]->field = "display_name";
+                }
+            }
+            
+           $query .= " AND (". $this->buildWhere($params["where"]) .")";
+        }
+        
         return $this->getDataGrid($query, $start, $params["limit"] , $params["sidx"], $params["sord"] );
     }
 

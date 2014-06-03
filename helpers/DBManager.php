@@ -1,6 +1,7 @@
 <?php
-require_once($_SERVER['CONTEXT_DOCUMENT_ROOT'].'/wp-load.php' );
 require_once dirname(__FILE__)."/../pluginConfig.php";
+require_once(getPahtFile('wp-load.php') );
+
 abstract class DBManager{
 	public $conn;
 	public $pluginPrefix;
@@ -114,6 +115,46 @@ abstract class DBManager{
                     $this->result = "Error: ".$e->getMessage();
 		}
 	}
+        
+        private function setFilter($field, $opString, $data){
+            $op = "";
+            switch($opString){
+                case 'eq':  $op = " = '{data}'"; break;
+                case 'ne':  $op = " <> '{data}'"; break;
+                case 'lt':  $op = " < '{data}'"; break;
+                case 'le':  $op = " <= '{data}'"; break;
+                case 'gt':  $op = " > '{data}'"; break;
+                case 'ge':  $op = " >= '{data}'"; break;
+                case 'bw':  $op = " LIKE '%{data}'"; break;
+                case 'bn':  $op = " NOT LIKE '%{data}'"; break;
+                case 'in':  $op = " LIKE '%{data}%'"; break;
+                case 'ni':  $op = " NOT LIKE '%{data}%'"; break;
+                case 'ew':  $op = " LIKE '{data}%'"; break;
+                case 'en':  $op = " NOT LIKE '{data}%'"; break;
+                case 'cn':  $op = " LIKE '%{data}%'"; break;
+                case 'nc':  $op = " NOT LIKE '%{data}%'"; break;
+                case 'nu':  $op = " IS NULL"; break;
+                case 'nn':  $op = " IS NOT NULL"; break;
+                default: $op = "="; break;
+            }
+            return $field. (str_replace("{data}", $data, $op));
+        }
+        
+        protected function buildWhere($data){
+            $where = array();
+            
+            $LogicalOperator = $data->groupOp;
+            $filters = $data->rules;
+            
+            if (is_array( $filters )){
+                $countFilters = count($filters);
+                for($i = 0; $i < $countFilters; $i++){
+                    $where[] = " ". $this->setFilter($filters[$i]->field, $filters[$i]->op, $filters[$i]->data);
+                }
+            }
+            
+            return implode($LogicalOperator, $where);
+        }
         
         protected function addRecord($entity, $newRecord, $auditData){
             if ( ! is_array( $newRecord ) || ! is_array( $auditData ))

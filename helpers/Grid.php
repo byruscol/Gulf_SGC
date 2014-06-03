@@ -230,8 +230,7 @@ class Grid extends DBManager
                                                 }, 100);
                                         },
                                         numberTemplate = {formatter: "number", align: "right", sorttype: "number",
-                                        editrules: {number: true, required: true},
-                                        searchoptions: { sopt: ["eq", "ne", "lt", "le", "gt", "ge", "nu", "nn", "in", "ni"] }
+                                        editrules: {number: true, required: true}
                                 };
                         $grid.jqGrid({						
                                         url:"admin-ajax.php",
@@ -290,13 +289,13 @@ class Grid extends DBManager
                                                     mtype:"POST",
                                                     reloadAfterSubmit:true
                                                 }
-                                                ,{multipleSearch:true, multipleGroup:true, showQuery: true,  width:"99%"})';
-                                /*
-$grid .=',closeAfterEdit: true,  width:800, recreateForm: true, closeAfterAdd: true, reloadAfterSubmit:true}';
-                                
-                                $grid .=',{},{},{multipleSearch:true, multipleGroup:true, showQuery: true})';                                 */
-
-            $grid .= '})';
+                                                ,{multipleSearch:true
+                                                    , multipleGroup:false
+                                                    , showQuery: false
+                                                    , sopt: ["eq", "ne", "lt", "le", "gt", "ge", "bw", "bn", "ew", "en", "cn", "nc", "nu", "nn", "in", "ni"]
+                                                    , width:"99%"
+                                                })';
+                                $grid .= '})';
 
             echo  $grid;
 	}

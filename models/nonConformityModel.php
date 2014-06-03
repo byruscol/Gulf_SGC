@@ -13,6 +13,10 @@ class nonConformity extends DBManagerModel{
                             , `gestion`, `clasificacion_nc`, created_by, `assigned_user_id`
                           FROM ".$entity["tableName"]."
                           WHERE `deleted` = 0";
+        
+        if(array_key_exists('where', $params))
+            $query .= " AND (". $this->buildWhere($params["where"]) .")";
+        
         return $this->getDataGrid($query, $start, $params["limit"] , $params["sidx"], $params["sord"]);
     }
 
