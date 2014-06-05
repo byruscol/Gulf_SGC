@@ -8,7 +8,7 @@ class nonConformity extends DBManagerModel{
         $entity = $this->entity();
         $start = $params["limit"] * $params["page"] - $params["limit"];
         $query = "SELECT  `nonConformityId`, `name`, `description` 
-                            , `estadonc`, `nombre_del_clientenc`
+                            , `estadonc`, `assigned_user_id`, `nombre_del_clientenc`
                             , `telefononc`, `fuentenc`, `generalidadnc`, `sedenc`
                             , `gestion`, `clasificacion_nc`, created_by, `assigned_user_id`
                           FROM ".$entity["tableName"]."
@@ -24,21 +24,23 @@ class nonConformity extends DBManagerModel{
         $this->addRecord($this->entity(), $_POST, array("date_entered" => date("Y-m-d H:i:s"), "created_by" => $this->currentUser->ID));
     }
     public function edit(){
-        $this->updateRecord($this->entity(), $_POST, array("nonConformityId" => $_POST["nonConformityId"]));
+        $this->updateRecord($this->entity(), $_POST, array("nonConformityId" => $_POST["nonConformityId"]), array("columnValidateEdit" => "assigned_user_id"));
     }
     public function del(){
-        $this->delRecord($this->entity(), array("nonConformityId" => $_POST["id"]));
+        $this->delRecord($this->entity(), array("nonConformityId" => $_POST["id"]), array("columnValidateEdit" => "assigned_user_id"));
     }
 
     public function entity()
     {
             $data = array(
                             "tableName" => $this->pluginPrefix."nonConformities"
+                            ,"columnValidateEdit" => "assigned_user_id"
                             ,"atributes" => array(
                                 "nonConformityId" => array("type" => "int", "PK" => 0, "required" => false, "readOnly" => true, "autoIncrement" => true )
                                 ,"name" => array("type" => "varchar", "required" => true)
                                 ,"description" => array("type" => "text", "required" => true, "text" => true)
                                 ,"estadonc" => array("type" => "tinyint", "required" => true, "references" => array("table" => $this->pluginPrefix."status", "id" => "statusid", "text" => "status"))
+                                ,"assigned_user_id" => array("type" => "tinyint", "required" => true, "references" => array("table" => $this->wpPrefix."users", "id" => "ID", "text" => "display_name"))
                                 ,"nombre_del_clientenc" => array("type" => "varchar", "required" => true)
                                 ,"telefononc" => array("type" => "varchar", "required" => true)
                                 ,"fuentenc" => array("type" => "tinyint", "required" => true, "references" => array("table" => $this->pluginPrefix."sources", "id" => "sourceId", "text" => "source"))

@@ -14,6 +14,7 @@ class Grid extends DBManager
 	private $params;
 	private $loc;
         private $beforeShowForm = "";
+        public $ValidateEdit = false;
 	public $view;
 	
 	function __construct($type = "table", $p, $v, $t) {
@@ -59,7 +60,14 @@ class Grid extends DBManager
     	$j=1;
     	$k=1;
     	$numCols = 2;
-    	
+        $columnValidateEdit = "";
+        
+        if(array_key_exists("columnValidateEdit", $this->entity)){
+            $this->ValidateEdit = true;
+            $this->columnValidateEdit = $this->entity["columnValidateEdit"];
+        }
+        
+        
     	foreach ($this->entity["atributes"] as $col => $value){
     		$this->colnames[] = $col;
     		
@@ -214,6 +222,49 @@ class Grid extends DBManager
     	else
     		$postData = "";
     	
+        if($this->ValidateEdit){
+            $scriptEditing = 'var row = jQuery(this).jqGrid("getRowData", rowid);
+                                                if(row.'.$this->columnValidateEdit.' != '.$this->currentUser->ID.'){
+                                                    jQuery("#del_' . $this->view . '").hide();
+                                                    jQuery("#edit_' . $this->view . '").hide();
+                                                }
+                                                else{
+                                                    jQuery("#del_' . $this->view . '").show();
+                                                    jQuery("#edit_' . $this->view . '").show();
+                                                };';
+            if(is_array($this->params["actions"])){
+                $countParams = count($this->params["actions"]);
+                $addUpdateFunction = "add";
+                for($i = 0; $i < $countParams; $i++){
+                    if($this->params["actions"][$i]["type"] == "onSelectRow"){
+                        $addUpdateFunction = "update";
+                        $content = explode("{",$this->params["actions"][$i]["function"]);
+                        $paramsFunction = explode(",",str_replace(array("function","(",")"), "", $content[0]));
+                        
+                        if(count($paramsFunction) > 0)
+                        {
+                            $rowid = $paramsFunction[0];
+                            $scriptEditing = str_replace("rowid", $rowid, $scriptEditing);
+                            $content[1] = $scriptEditing . $content[1];
+                            $this->params["actions"][$i]["function"] = implode("{",$content);
+                        }
+                        break;
+                    }
+                }
+            }
+            else
+                $addUpdateFunction = "add";
+            
+            if($addUpdateFunction == "add"){
+                $this->params["actions"][]=array("type" => "onSelectRow"
+                                                ,"function" => 'function(rowid, e){
+                                                    '. $scriptEditing .'
+                                                }');
+            }
+            
+            
+        }
+        
             $grid = 'jQuery(document).ready(function($){
                         $grid = jQuery("#' . $this->view . '"),
                                         initDateEdit = function (elem) {
@@ -265,7 +316,7 @@ class Grid extends DBManager
                                                 $grid .= ',' . $value["type"] .': '. $value["function"];
                                         }
                                 }						    
-
+                                
                                 $grid .= '});
                                 jQuery("#' . $this->view . '").jqGrid("navGrid","#' . $this->view . 'Pager",
                                                 {edit:true,add:true,del:true}
@@ -275,7 +326,7 @@ class Grid extends DBManager
                                                     width:"99%",
                                                     reloadAfterSubmit:true,
                                                     closeAfterEdit: true
-                                                    ,beforeShowForm:function(form){'.$this->beforeShowForm.'}
+                                                    ,beforeShowForm:function(form){'.$this->beforeShowForm.' ; }
                                                 }
                                                 ,{//add options
                                                     recreateForm: true,
@@ -288,6 +339,7 @@ class Grid extends DBManager
                                                 ,{//del option
                                                     mtype:"POST",
                                                     reloadAfterSubmit:true
+                                                    ,beforeShowForm:function(form){'.$this->beforeShowForm.'}
                                                 }
                                                 ,{multipleSearch:true
                                                     , multipleGroup:false

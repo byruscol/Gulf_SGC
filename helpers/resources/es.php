@@ -2,6 +2,7 @@
 $locale = array(
                 "assigned_user_id" => "Asignado"
                 ,"created_by" => "Creado por"
+                ,"created_user" => "Creado por"
                 ,"date_due" => "Fecha fin"
                 ,"date_entered" => "Fecha creación"
                 ,"date_start" => "Fecha inicio"

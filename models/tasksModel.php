@@ -55,16 +55,17 @@ class tasks extends DBManagerModel{
         $this->addRecord($relEntity, array($relEntity["parent"]["Id"] => $_POST["parentId"],"taskId" => $this->LastId), array());
     }
     public function edit(){
-        $this->updateRecord($this->entity(), $_POST, array("taskId" => $_POST["taskId"]));
+        $this->updateRecord($this->entity(), $_POST, array("taskId" => $_POST["taskId"]), array("columnValidateEdit" => "assigned_user_id"));
     }
     public function del(){
-        $this->delRecord($this->entity(), array("taskId" => $_POST["id"]));
+        $this->delRecord($this->entity(), array("taskId" => $_POST["id"]), array("columnValidateEdit" => "assigned_user_id"));
     }
 
     public function entity()
     {
         $data = array(
                         "tableName" => $this->pluginPrefix."tasks"
+                        ,"columnValidateEdit" => "assigned_user_id"
                         ,"atributes" => array(
                             "taskId" => array("type" => "int", "PK" => 0, "required" => false, "readOnly" => true, "autoIncrement" => true )
                             ,"name" => array("type" => "varchar", "required" => true)
