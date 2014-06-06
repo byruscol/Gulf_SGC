@@ -101,6 +101,10 @@ class mainController
 		wp_enqueue_script( 'pluginjs' );
 		
 		$this->headScripts[] = 'pluginjs';
+                wp_register_script('jquery-u', $this->pluginURL . 'js/jquery-ui-1.10.4.custom.min.js' ,$this->headScripts);
+		wp_enqueue_script('jquery-u');
+		
+		$this->headScripts[] = 'jquery-u';
 		wp_register_script('jCombo', $this->pluginURL . 'js/jquery.jCombo.js' ,$this->headScripts);
 		wp_enqueue_script('jCombo');
 		

@@ -18,6 +18,10 @@ function setTextAreaForm(form, id){
     tinymce.editors = new Array();
     jQuery('#'+textAreaId).tinymce({
         mode : "none",
-        theme : "modern"
+        theme : "modern",
+        plugins: "table code",
+        tools: "inserttable"
     });
 }
+
+function noHTMLTags(string){return string.replace(/(<([^>]+)>)/ig,'');}

@@ -174,11 +174,24 @@ class Grid extends DBManager
                         $model["editoptions"]["defaultValue"] = "@function(g){return '".date("Y-m-d H:i:s", time())."'}@";
                     }
                 
+                if(array_key_exists('toolTip', $value) && is_array($value['toolTip'])){
+                    $return = "";
+                    switch($value['toolTip']["type"]){
+                        case "cell": $return = "rawObject[".$value['toolTip']["cell"]."]";break;
+                        default: $return = '"'.$value['toolTip']["custom"].'"';break;
+                    }
+                    
+                    
+                    $model["cellattr"] = "@function (rowId, val, rawObject, cm, rdata) { var tip = noHTMLTags(".$return."); return ' title = ' + tip; }@";
+                }    
+                    
                 if($value['text']){
     			$model["edittype"] = "textarea";
     			$model["editoptions"]["rows"] = 6; 
     			$model["editoptions"]["cols"] = 50;
-    			
+                        $model["searchoptions"]["searchhidden"] = true;
+                        $model["editrules"]["edithidden"] = true;
+                        
     			if($j == $numCols){
                             $k++;
                             $option = array('rowpos' => $k, 'colpos' => 1);
@@ -270,18 +283,7 @@ class Grid extends DBManager
                                                         .prev(".CaptionTD")
                                                         .prop("disabled", true)
                                                         .addClass("ui-state-disabled");';
-         
         
-        //$this->beforeShowForm .= ' alert(tinyMCE);';
-        /*$this->beforeShowForm .= 'jQuery("#description").tinymce({
-		toolbar_items_size: "small",
-
-                toolbar1: "newdocument fullpage | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | styleselect formatselect fontselect fontsizeselect",
-                toolbar2: "cut copy paste | searchreplace | bullist numlist | outdent indent blockquote | undo redo | link unlink anchor image media code | inserttime preview | forecolor backcolor",
-                toolbar3: "table | hr removeformat | subscript superscript | charmap emoticons | print fullscreen | ltr rtl | spellchecker | visualchars visualblocks nonbreaking template pagebreak restoredraft",
-
-	});';*/
-//description
         $grid = 'jQuery(document).ready(function($){
                     $grid = jQuery("#' . $this->view . '"),
                                     initDateEdit = function (elem) {
@@ -336,8 +338,7 @@ class Grid extends DBManager
 
                             $grid .= '});
                             jQuery("#' . $this->view . '").jqGrid("navGrid","#' . $this->view . 'Pager",
-                                            {
-                                                edit:'.(($this->entity["entityConfig"]["edit"])? "true" : "false").'
+                                            {   edit:'.(($this->entity["entityConfig"]["edit"])? "true" : "false").'
                                                 ,add:'.(($this->entity["entityConfig"]["add"])? "true" : "false").'
                                                 ,del:'.(($this->entity["entityConfig"]["del"])? "true" : "false").'
                                             }';
@@ -351,6 +352,9 @@ class Grid extends DBManager
                                                             ,afterShowForm:function(form){'.$this->beforeShowForm.' ;}
                                                         }';
                                     }
+                                    else
+                                        $grid .= ',{}';
+                                    
                                     if($this->entity["entityConfig"]["add"]){
                                             $grid .= ',{//add options
                                                             recreateForm: true,
@@ -360,20 +364,47 @@ class Grid extends DBManager
                                                             closeAfterAdd: true
                                                             ,afterShowForm:function(form){'.$this->beforeShowForm.' ;}
                                                         }';
-                                    }
+                                    }else
+                                        $grid .= ',{}';
+                                    
                                     if($this->entity["entityConfig"]["add"]){
                                             $grid .= ',{//del option
                                                             mtype:"POST",
                                                             reloadAfterSubmit:true
                                                             ,beforeShowForm:function(form){'.$this->beforeShowForm.'}
                                                         }';
-                                    }        
+                                    }else
+                                        $grid .= ',{}';
+                                           
                                             $grid .= ',{multipleSearch:true
                                                             , multipleGroup:false
                                                             , showQuery: false
                                                             , sopt: ["eq", "ne", "lt", "le", "gt", "ge", "bw", "bn", "ew", "en", "cn", "nc", "nu", "nn", "in", "ni"]
                                                             , width:"99%"
-                                                        })';
+                                                        }).navSeparatorAdd("#' . $this->view . 'Pager").navButtonAdd("#' . $this->view . 'Pager",{
+                                                            caption:"", 
+                                                            title: $.jgrid.nav.viewtitle,
+                                                            buttonicon:"ui-icon-document", 
+                                                            onClickButton: function(){ 
+                                                                /*var str = "";
+                                                                for(xx in id){
+                                                                    str += xx + " -> " + id[xx] + "<br/>";
+                                                                }*/
+                                                                var rowid = jQuery("#' . $this->view . '").jqGrid("getGridParam", "selrow");
+                                                                var rowData = jQuery("#' . $this->view . '").jqGrid("getRowData", rowid);
+                                                                var colModel = jQuery("#' . $this->view . '").jqGrid("getGridParam","colModel");
+                                                                var str = "";
+                                                                for(xx in colModel[0]){
+                                                                    str += xx + " : " + colModel[0][xx] + " -> " + rowData[xx] + "<br/>";
+                                                                }
+
+                                                                jQuery("<div>"+str+"</div>").dialog({
+                                                                    height: 140,
+                                                                    modal: true
+                                                                  });
+                                                            }, 
+                                                            position:"last"
+                                                         })';
                             $grid .= '})';
 
             echo  $grid;

@@ -37,9 +37,9 @@ class nonConformity extends DBManagerModel{
                             ,"columnValidateEdit" => "assigned_user_id"
                             ,"entityConfig" => array("add" => true, "edit" => true, "del" => true)
                             ,"atributes" => array(
-                                "nonConformityId" => array("type" => "int", "PK" => 0, "required" => false, "readOnly" => true, "autoIncrement" => true )
+                                "nonConformityId" => array("type" => "int", "PK" => 0, "required" => false, "readOnly" => true, "autoIncrement" => true, "toolTip" => array("type" => "cell", "cell" => 2) )
                                 ,"name" => array("type" => "varchar", "required" => true)
-                                ,"description" => array("type" => "text", "required" => true, "text" => true)
+                                ,"description" => array("type" => "text", "required" => true, "text" => true, "hidden" => true)
                                 ,"estadonc" => array("type" => "tinyint", "required" => true, "references" => array("table" => $this->pluginPrefix."status", "id" => "statusid", "text" => "status"))
                                 ,"assigned_user_id" => array("type" => "tinyint", "required" => true, "references" => array("table" => $this->wpPrefix."users", "id" => "ID", "text" => "display_name"))
                                 ,"nombre_del_clientenc" => array("type" => "varchar", "required" => true)
