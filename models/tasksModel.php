@@ -66,6 +66,7 @@ class tasks extends DBManagerModel{
         $data = array(
                         "tableName" => $this->pluginPrefix."tasks"
                         ,"columnValidateEdit" => "assigned_user_id"
+                        ,"entityConfig" => array("add" => true, "edit" => true, "del" => true)
                         ,"atributes" => array(
                             "taskId" => array("type" => "int", "PK" => 0, "required" => false, "readOnly" => true, "autoIncrement" => true )
                             ,"name" => array("type" => "varchar", "required" => true)

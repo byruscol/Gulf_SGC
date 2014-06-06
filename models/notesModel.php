@@ -68,6 +68,7 @@ class notes extends DBManagerModel{
         $data = array(
                         "tableName" => $this->pluginPrefix."notes"
                         ,"columnValidateEdit" => "created_by"
+                        ,"entityConfig" => array("add" => true, "edit" => true, "del" => true)
                         ,"atributes" => array(
                                         "noteId" => array("type" => "int", "PK" => 0, "required" => false, "readOnly" => true, "autoIncrement" => true )
                                         ,"name" => array("type" => "varchar", "required" => true)

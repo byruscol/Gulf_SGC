@@ -6,54 +6,54 @@ if(!isset($resource)){
 }
 class Grid extends DBManager
 {	
-	private $table;
-	private $ColMolde;
-	private $colnames = array();
-	private $baseId;
-	private $entity;
-	private $params;
-	private $loc;
-        private $beforeShowForm = "";
-        public $ValidateEdit = false;
-	public $view;
-	
-	function __construct($type = "table", $p, $v, $t) {
-		global $resource;
-		$this->view = $v;
-		$this->params = $p;
-		$this->loc = $resource;
-		parent::__construct();
-		if($type == "table"){
-			require_once $this->pluginPath."/models/".$v."Model.php";
-			$this->baseId = $t;
-			$this->table = $this->pluginPrefix.$t;
-			$this->entity = $v::entity();
-			$this->gridBuilderFromTable();
-		}
-	}
-	
-	function __destruct() {
-	}
-	
-	function RelationShipData($references){
-	
-		$DataArray = array();
-		
-		$query = "SELECT " . $references["id"] . " Id, " . $references["text"] . " Name FROM ". $references["table"];
-		$Relation = $this->getDataGrid($query, null, null, $references["text"], "ASC");
+    private $table;
+    private $ColMolde;
+    private $colnames = array();
+    private $baseId;
+    private $entity;
+    private $params;
+    private $loc;
+    private $beforeShowForm = "";
+    public $ValidateEdit = false;
+    public $view;
 
-		foreach ( $Relation["data"] as $k => $v ){
-			$DataArray[] = "{".$Relation["data"][$k]->Id.":".htmlspecialchars($Relation["data"][$k]->Name)."}";
-		}
+    function __construct($type = "table", $p, $v, $t) {
+            global $resource;
+            $this->view = $v;
+            $this->params = $p;
+            $this->loc = $resource;
+            parent::__construct();
+            if($type == "table"){
+                    require_once $this->pluginPath."/models/".$v."Model.php";
+                    $this->baseId = $t;
+                    $this->table = $this->pluginPrefix.$t;
+                    $this->entity = $v::entity();
+                    $this->gridBuilderFromTable();
+            }
+    }
 
-		$replaceBlank = array('"','{','}','[');
-		$replaceSemicolon = array(',',']');
-		
-		$DataArray = str_ireplace($replaceBlank,'',json_encode($DataArray, JSON_UNESCAPED_UNICODE));
-		$DataArray = str_ireplace($replaceSemicolon,';',$DataArray);
-	
-		return $DataArray;
-	}
+    function __destruct() {
+    }
+
+    function RelationShipData($references){
+
+            $DataArray = array();
+
+            $query = "SELECT " . $references["id"] . " Id, " . $references["text"] . " Name FROM ". $references["table"];
+            $Relation = $this->getDataGrid($query, null, null, $references["text"], "ASC");
+
+            foreach ( $Relation["data"] as $k => $v ){
+                    $DataArray[] = "{".$Relation["data"][$k]->Id.":".htmlspecialchars($Relation["data"][$k]->Name)."}";
+            }
+
+            $replaceBlank = array('"','{','}','[');
+            $replaceSemicolon = array(',',']');
+
+            $DataArray = str_ireplace($replaceBlank,'',json_encode($DataArray, JSON_UNESCAPED_UNICODE));
+            $DataArray = str_ireplace($replaceSemicolon,';',$DataArray);
+
+            return $DataArray;
+    }
 	
     function colModelFromTable(){
     	$countCols = count($this->entity["atributes"]);
@@ -66,7 +66,6 @@ class Grid extends DBManager
             $this->ValidateEdit = true;
             $this->columnValidateEdit = $this->entity["columnValidateEdit"];
         }
-        
         
     	foreach ($this->entity["atributes"] as $col => $value){
     		$this->colnames[] = $col;
@@ -264,90 +263,118 @@ class Grid extends DBManager
             
             
         }
+        $this->beforeShowForm .= ' form.find(".FormElement[readonly]")
+                                                        .prop("disabled", true)
+                                                        .addClass("ui-state-disabled")
+                                                        .closest(".DataTD")
+                                                        .prev(".CaptionTD")
+                                                        .prop("disabled", true)
+                                                        .addClass("ui-state-disabled");';
+         
         
-            $grid = 'jQuery(document).ready(function($){
-                        $grid = jQuery("#' . $this->view . '"),
-                                        initDateEdit = function (elem) {
-                                                setTimeout(function () {
-                                                        $(elem).datepicker({
-                                                                dateFormat: "yy-m-dd",
-                                                                autoSize: true,
-                                                                showOn: "button", 
-                                                                changeYear: true,
-                                                                changeMonth: true,
-                                                                showButtonPanel: true,
-                                                                showWeek: true
-                                                        });        
-                                                }, 100);
-                                        },
-                                        numberTemplate = {formatter: "number", align: "right", sorttype: "number",
-                                        editrules: {number: true, required: true}
-                                };
-                        $grid.jqGrid({						
-                                        url:"admin-ajax.php",
-                                        datatype: "json",
-                                        mtype: "POST",
-                                        postData : {
-                                                action: "action",
-                                                id: "' . $this->view . '"
-                                                '. $postData.'
-                                        },
-                                        //colNames:'.json_encode($this->colnames).',					
-                                        colModel:'.$this->ColModel.',
-                                        rowNum:'. $this->params["numRows"].',
-                                        rowList: ['. $this->params["numRows"] .', '. ($this->params["numRows"] * 2) .', '. ($this->params["numRows"] * 3) .'],
-                                        pager: "#' . $this->view . 'Pager",						
-                                        sortname: "'. $this->params["sortname"].'",
-                                        viewrecords: true,
-                                        sortorder: "desc",
-                                        viewrecords: true,
-                                        gridview: true,
-                                        height: "100%",
-                                        autowidth: true,
-                                        editurl: "'.$this->pluginURL.'edit.php?controller='.$this->view.'",
-                                        caption:"' . $this->loc->getWord($this->view) . '",
-                                        beforeRequest: function() {
-                                            responsive_jqgrid(jQuery(".jqGrid"));
-                                        }';
+        //$this->beforeShowForm .= ' alert(tinyMCE);';
+        /*$this->beforeShowForm .= 'jQuery("#description").tinymce({
+		toolbar_items_size: "small",
 
-                                if(array_key_exists('actions', $this->params))
-                                {
-                                        foreach ($this->params['actions'] as $key => $value){
-                                                $grid .= ',' . $value["type"] .': '. $value["function"];
-                                        }
-                                }						    
-                                
-                                $grid .= '});
-                                jQuery("#' . $this->view . '").jqGrid("navGrid","#' . $this->view . 'Pager",
-                                                {edit:true,add:true,del:true}
-                                                ,{ // edit options
-                                                    recreateForm: true,
-                                                    viewPagerButtons: true,
-                                                    width:"99%",
-                                                    reloadAfterSubmit:true,
-                                                    closeAfterEdit: true
-                                                    ,beforeShowForm:function(form){'.$this->beforeShowForm.' ; }
-                                                }
-                                                ,{//add options
-                                                    recreateForm: true,
-                                                    viewPagerButtons: false,
-                                                     width:"99%",
-                                                    reloadAfterSubmit:true,
-                                                    closeAfterAdd: true
-                                                    ,beforeShowForm:function(form){'.$this->beforeShowForm.'}
-                                                }
-                                                ,{//del option
-                                                    mtype:"POST",
-                                                    reloadAfterSubmit:true
-                                                    ,beforeShowForm:function(form){'.$this->beforeShowForm.'}
-                                                }
-                                                ,{multipleSearch:true
-                                                    , multipleGroup:false
-                                                    , showQuery: false
-                                                    , sopt: ["eq", "ne", "lt", "le", "gt", "ge", "bw", "bn", "ew", "en", "cn", "nc", "nu", "nn", "in", "ni"]
-                                                    , width:"99%"
-                                                })';
-                                $grid .= '})';
+                toolbar1: "newdocument fullpage | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | styleselect formatselect fontselect fontsizeselect",
+                toolbar2: "cut copy paste | searchreplace | bullist numlist | outdent indent blockquote | undo redo | link unlink anchor image media code | inserttime preview | forecolor backcolor",
+                toolbar3: "table | hr removeformat | subscript superscript | charmap emoticons | print fullscreen | ltr rtl | spellchecker | visualchars visualblocks nonbreaking template pagebreak restoredraft",
+
+	});';*/
+//description
+        $grid = 'jQuery(document).ready(function($){
+                    $grid = jQuery("#' . $this->view . '"),
+                                    initDateEdit = function (elem) {
+                                            setTimeout(function () {
+                                                    $(elem).datepicker({
+                                                            dateFormat: "yy-m-dd",
+                                                            autoSize: true,
+                                                            showOn: "button", 
+                                                            changeYear: true,
+                                                            changeMonth: true,
+                                                            showButtonPanel: true,
+                                                            showWeek: true
+                                                    });        
+                                            }, 100);
+                                    },
+                                    numberTemplate = {formatter: "number", align: "right", sorttype: "number",
+                                    editrules: {number: true, required: true}
+                            };
+                    $grid.jqGrid({						
+                                    url:"admin-ajax.php",
+                                    datatype: "json",
+                                    mtype: "POST",
+                                    postData : {
+                                            action: "action",
+                                            id: "' . $this->view . '"
+                                            '. $postData.'
+                                    },
+                                    //colNames:'.json_encode($this->colnames).',					
+                                    colModel:'.$this->ColModel.',
+                                    rowNum:'. $this->params["numRows"].',
+                                    rowList: ['. $this->params["numRows"] .', '. ($this->params["numRows"] * 2) .', '. ($this->params["numRows"] * 3) .'],
+                                    pager: "#' . $this->view . 'Pager",						
+                                    sortname: "'. $this->params["sortname"].'",
+                                    viewrecords: true,
+                                    sortorder: "desc",
+                                    viewrecords: true,
+                                    gridview: true,
+                                    height: "100%",
+                                    autowidth: true,
+                                    editurl: "'.$this->pluginURL.'edit.php?controller='.$this->view.'",
+                                    caption:"' . $this->loc->getWord($this->view) . '",
+                                    beforeRequest: function() {
+                                        responsive_jqgrid(jQuery(".jqGrid"));
+                                    }';
+
+                            if(array_key_exists('actions', $this->params))
+                            {
+                                    foreach ($this->params['actions'] as $key => $value){
+                                            $grid .= ',' . $value["type"] .': '. $value["function"];
+                                    }
+                            }						    
+
+                            $grid .= '});
+                            jQuery("#' . $this->view . '").jqGrid("navGrid","#' . $this->view . 'Pager",
+                                            {
+                                                edit:'.(($this->entity["entityConfig"]["edit"])? "true" : "false").'
+                                                ,add:'.(($this->entity["entityConfig"]["add"])? "true" : "false").'
+                                                ,del:'.(($this->entity["entityConfig"]["del"])? "true" : "false").'
+                                            }';
+                                    if($this->entity["entityConfig"]["edit"]){
+                                            $grid .= ',{ // edit options
+                                                            recreateForm: true,
+                                                            viewPagerButtons: true,
+                                                            width:"99%",
+                                                            reloadAfterSubmit:true,
+                                                            closeAfterEdit: true
+                                                            ,afterShowForm:function(form){'.$this->beforeShowForm.' ;}
+                                                        }';
+                                    }
+                                    if($this->entity["entityConfig"]["add"]){
+                                            $grid .= ',{//add options
+                                                            recreateForm: true,
+                                                            viewPagerButtons: false,
+                                                            width:"99%",
+                                                            reloadAfterSubmit:true,
+                                                            closeAfterAdd: true
+                                                            ,afterShowForm:function(form){'.$this->beforeShowForm.' ;}
+                                                        }';
+                                    }
+                                    if($this->entity["entityConfig"]["add"]){
+                                            $grid .= ',{//del option
+                                                            mtype:"POST",
+                                                            reloadAfterSubmit:true
+                                                            ,beforeShowForm:function(form){'.$this->beforeShowForm.'}
+                                                        }';
+                                    }        
+                                            $grid .= ',{multipleSearch:true
+                                                            , multipleGroup:false
+                                                            , showQuery: false
+                                                            , sopt: ["eq", "ne", "lt", "le", "gt", "ge", "bw", "bn", "ew", "en", "cn", "nc", "nu", "nn", "in", "ni"]
+                                                            , width:"99%"
+                                                        })';
+                            $grid .= '})';
 
             echo  $grid;
 	}
