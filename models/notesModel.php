@@ -35,24 +35,24 @@ class notes extends DBManagerModel{
 		return $data;
 	}
 		
-	public function set(){
+	public function add(){
 	}
 	public function edit(){
 	}
-	public function delete(){
+	public function del(){
 		
 	}
 	
 	public function entity()
 	{
 		$data = array(
-						"noteId" => array("type" => "int", "PK" => 0, "required" => false, readOnly => true )
-						,"name" => array("type" => "varchar", "required" => true)
-						,"date_entered" => array("type" => "datetime", "required" => false, readOnly => true )
-						,"created_by" => array("type" => "varchar", "required" => false, readOnly => true)
-						,"noteTypeId" => array("type" => "int", "required" => true, "references" => array("table" => $this->pluginPrefix."noteTypes", "id" => "noteTypeId", "text" => "noteType"))
-						,"description" => array("type" => "varchar", "required" => true, "text" => true)
-				);
+                            "noteId" => array("type" => "int", "PK" => 0, "required" => false, "readOnly" => true )
+                            ,"name" => array("type" => "varchar", "required" => true)
+                            ,"date_entered" => array("type" => "datetime", "required" => false, "readOnly" => true )
+                            ,"created_by" => array("type" => "varchar", "required" => false, "readOnly" => true)
+                            ,"noteTypeId" => array("type" => "int", "required" => true, "references" => array("table" => $this->pluginPrefix."noteTypes", "id" => "noteTypeId", "text" => "noteType"))
+                            ,"description" => array("type" => "varchar", "required" => true, "text" => true)
+			);
 		return $data;
 	}
 }

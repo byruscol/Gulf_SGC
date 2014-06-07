@@ -48,7 +48,7 @@ class Grid extends DBManager
 		$replaceBlank = array('"','{','}','[');
 		$replaceSemicolon = array(',',']');
 		
-		$DataArray = str_ireplace($replaceBlank,'',json_encode($DataArray));
+		$DataArray = str_ireplace($replaceBlank,'',json_encode($DataArray, JSON_UNESCAPED_UNICODE));
 		$DataArray = str_ireplace($replaceSemicolon,';',$DataArray);
 	
 		return $DataArray;
@@ -176,16 +176,6 @@ class Grid extends DBManager
     		$model = array();
     	}
         
-    	
-    	$colmodel[] = array('name'=>'TableAction',
-			    			'index'=>'TableAction',
-			    			'align' => center,
-			    			'editable' => true,
-			    			'editrules'=> array('edithidden'=> false ),
-			    			'editoptions'=> array('value' => $this->table),
-			    			'hidden'=>true
-			    		);
-        
     	$this->ColModel = str_ireplace('"@',"",json_encode($colmodel));
     	$this->ColModel = str_ireplace('@"',"",$this->ColModel);
     }
@@ -246,6 +236,7 @@ class Grid extends DBManager
                                         gridview: true,
                                         height: "100%",
                                         autowidth: true,
+                                        editurl: "'.$this->pluginURL.'edit.php?controller='.$this->view.'",
                                         caption:"' . $this->loc->getWord($this->view) . '",
                                         beforeRequest: function() {
                                             responsive_jqgrid(jQuery(".jqGrid"));

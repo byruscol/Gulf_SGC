@@ -36,28 +36,28 @@ class tasks extends DBManagerModel{
 		return $data;
 	}
 		
-	public function set(){
+	public function add(){
 	}
 	public function edit(){
 	}
-	public function delete(){
+	public function del(){
 		
 	}
 	
 	public function entity()
 	{
 		$data = array(
-						"taskId" => array("type" => "int", "PK" => 0, "required" => false, readOnly => true )
-						,"name" => array("type" => "varchar", "required" => true)
-						,"status" => array("type" => "int", "required" => true, "references" => array("table" => $this->pluginPrefix."status", "id" => "statusId", "text" => "status"))
-						,"priority" => array("type" => "int", "required" => true, "references" => array("table" => $this->pluginPrefix."priorities", "id" => "priorityId", "text" => "priority"))
-						,"date_entered" => array("type" => "datetime", "required" => false, readOnly => true )
-						,"created_by" => array("type" => "varchar", "required" => false, readOnly => true)
-						,"assigned_user_id" => array("type" => "int", "required" => true, "references" => array("table" => $this->wpPrefix."users", "id" => "ID", "text" => "display_name"))
-						,"date_start" => array("type" => "datetime", "required" => true)
-						,"date_due" => array("type" => "datetime", "required" => true)
-						,"description" => array("type" => "varchar", "required" => true, "text" => true)
-				);
+                                "taskId" => array("type" => "int", "PK" => 0, "required" => false, "readOnly" => true )
+                                ,"name" => array("type" => "varchar", "required" => true)
+                                ,"status" => array("type" => "int", "required" => true, "references" => array("table" => $this->pluginPrefix."status", "id" => "statusId", "text" => "status"))
+                                ,"priority" => array("type" => "int", "required" => true, "references" => array("table" => $this->pluginPrefix."priorities", "id" => "priorityId", "text" => "priority"))
+                                ,"date_entered" => array("type" => "datetime", "required" => false, "readOnly" => true )
+                                ,"created_by" => array("type" => "varchar", "required" => false, "readOnly" => true)
+                                ,"assigned_user_id" => array("type" => "int", "required" => true, "references" => array("table" => $this->wpPrefix."users", "id" => "ID", "text" => "display_name"))
+                                ,"date_start" => array("type" => "datetime", "required" => true)
+                                ,"date_due" => array("type" => "datetime", "required" => true)
+                                ,"description" => array("type" => "varchar", "required" => true, "text" => true)
+			);
 		return $data;
 	}
 }

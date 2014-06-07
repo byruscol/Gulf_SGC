@@ -1,6 +1,6 @@
 <?php
-require_once($_SERVER['CONTEXT_DOCUMENT_ROOT'].'/wp-load.php' );
 require_once dirname(__FILE__)."/../pluginConfig.php";
+require_once getPahtFile("wp-load.php");
 abstract class DBManager{
 	public $conn;
 	public $pluginPrefix;
@@ -8,6 +8,7 @@ abstract class DBManager{
 	public $pluginPath;
 	public $pluginURL;
 	protected $query;
+        protected $DBOper = array("table" => "", "data" => array(), "filter" => "");
 	protected $totalRows;
 	protected $queryType;
 	protected $LastId;
@@ -28,7 +29,6 @@ abstract class DBManager{
 	
 	function __destruct() {}
 	
-	
 	public function getDataGrid($query = "SELECT 1 FROM dual", $start = null, $limit = null, $colSort = null, $sortDirection = null)
 	{
 		$queryBuild = $query;
@@ -45,7 +45,7 @@ abstract class DBManager{
 		return $this->get($queryBuild, "rows");
 	}
 	
-	protected function get($query, $type)
+        protected function get($query, $type)
 	{
 		$this->query = $query;
 		$this->queryType = $type;
@@ -77,6 +77,7 @@ abstract class DBManager{
 	
 	protected function executeQuery() {
 		$this->standardQuery();
+                
 		switch($this->queryType)
 		{
 			case "var": $this->result = $this->conn->get_var( $this->query ); break;
@@ -84,23 +85,17 @@ abstract class DBManager{
 			case "rows":$this->result = $this->conn->get_results($this->query, OBJECT); break;
 		}
 		
-		foreach ($this->result as $key => $value)
-		{
-			foreach ($value as $k => $v){
-				$this->result[$key]->$k =  utf8_encode(htmlentities($v));
-			}
-		}
-		
 		$this->getTotalRows();
 	}
 	
 	protected function execute() {
-		try {
+            //echo $this->DBOper["filter"];
+            try {
 			switch($this->queryType)
 			{
-				case "add": $this->result = $this->conn->insert( $this->query["table"], $this->query["data"]); $this->$LastId = $this->conn->insert_id;break;
-				case "upd": $this->result = $this->conn->update( $this->query["table"], $this->query["data"], $this->query["filter"]); break;
-				case "del": $this->result = $this->conn->delete( $this->query["table"], $this->query["filter"]); break;
+				case "add": $this->result = $this->conn->insert( $this->DBOper["table"], $this->DBOper["data"]); $this->$LastId = $this->conn->insert_id;break;
+                                case "edit": $this->result = $this->conn->update( $this->DBOper["table"], $this->DBOper["data"], $this->DBOper["filter"]); break;
+				case "del": $this->result = $this->conn->delete( $this->DBOper["table"], $this->DBOper["filter"]); break;
 				default: $this->executeQuery();
 			}
 		}
