@@ -14,4 +14,14 @@ function setTextAreaForm(form, id){
     $data = $tr.children("td.DataTD");
     $data.attr("colspan", "3");
     $data.children("textarea").css("width", "100%");
+    var textAreaId = $data.children("textarea").attr('id')
+    tinymce.editors = new Array();
+    jQuery('#'+textAreaId).tinymce({
+        mode : "none",
+        theme : "modern",
+        plugins: "table code",
+        tools: "inserttable"
+    });
 }
+
+function noHTMLTags(string){return string.replace(/(<([^>]+)>)/ig,'');}

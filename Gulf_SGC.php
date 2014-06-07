@@ -10,7 +10,11 @@ Author: Yohan Valderrama - Byron Otalvaro
 Author URI: http://localhost
 License: GPL2
 */
-include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+if(!function_exists('wp_get_current_user'))
+    require_once(ABSPATH . "wp-includes/pluggable.php"); 
+wp_cookie_constants();
+$current_user = wp_get_current_user();
+
 require_once "pluginConfig.php";
 require_once "views/mainView.php";
 require_once 'controllers/mainController.php';

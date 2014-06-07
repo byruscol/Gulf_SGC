@@ -5,24 +5,26 @@ require_once "../../../helpers/Grid.php";
 require_once "../../class.buildView.php";
 header('Content-type: text/javascript');
 $params = array("numRows" => 10
-				, "sortname" => "nonConformityId"
-				, "actions" => array(
-										array("type" => "onSelectRow"
-											  ,"function" => 'function(id) {
-												    				if(id != null) {
-												    					var postDataObj = jQuery("#notes").jqGrid("getGridParam","postData");
-												    					postDataObj["filter"] = id;
-												    					jQuery("#notes").jqGrid("setGridParam",{postData: postDataObj})
-																			.trigger("reloadGrid");
-																		
-																		postDataObj = jQuery("#tasks").jqGrid("getGridParam","postData");
-																		postDataObj["filter"] = id;
-																		jQuery("#tasks").jqGrid("setGridParam",{postData: postDataObj})
-																			.trigger("reloadGrid");
-												    				}
-																}'
-											)
-										)
-				);
+                , "sortname" => "nonConformityId"
+                , "actions" => array(
+                                        array("type" => "onSelectRow"
+                                                  ,"function" => 'function(id) {
+                                                                    if(id != null) {
+                                                                            var postDataObj = jQuery("#notes").jqGrid("getGridParam","postData");
+                                                                            postDataObj["filter"] = id;
+                                                                            postDataObj["parent"] = "'.$_GET["view"].'";
+                                                                            jQuery("#notes").jqGrid("setGridParam",{postData: postDataObj})
+                                                                                            .trigger("reloadGrid");
+
+                                                                            postDataObj = jQuery("#tasks").jqGrid("getGridParam","postData");
+                                                                            postDataObj["filter"] = id;
+                                                                            postDataObj["parent"] = "'.$_GET["view"].'";
+                                                                            jQuery("#tasks").jqGrid("setGridParam",{postData: postDataObj})
+                                                                                            .trigger("reloadGrid");
+                                                                    }
+                                                                }'
+                                                )
+                                    )
+            );
 $view = new buildView($_GET["view"], $params, "nonConformities");
 ?>

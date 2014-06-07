@@ -89,11 +89,19 @@ class mainController
 		wp_enqueue_script('jqGrid');
 		
 		$this->headScripts[] = 'jqGrid';
+                wp_register_script('tinymce',  $this->pluginURL . 'js/tinymce/tinymce.min.js',$this->headScripts);
+		wp_enqueue_script( 'tinymce' );
+		
+		$this->headScripts[] = 'tinymce';
+                wp_register_script('tinymceJQuery',  $this->pluginURL . 'js/tinymce/jquery.tinymce.min.js',$this->headScripts);
+		wp_enqueue_script( 'tinymceJQuery' );
+		
+		$this->headScripts[] = 'tinymceJQuery';
 		wp_register_script('pluginjs',  $this->pluginURL . 'js/pluginjs.js',$this->headScripts);
 		wp_enqueue_script( 'pluginjs' );
 		
 		$this->headScripts[] = 'pluginjs';
-		wp_register_script('jquery-u', $this->pluginURL . 'js/jquery-ui-1.10.4.custom.min.js' ,$this->headScripts);
+                wp_register_script('jquery-u', $this->pluginURL . 'js/jquery-ui-1.10.4.custom.min.js' ,$this->headScripts);
 		wp_enqueue_script('jquery-u');
 		
 		$this->headScripts[] = 'jquery-u';
@@ -130,7 +138,7 @@ class mainController
 	}
 	
 	function action_callback() {
-		
+		$responce = new StdClass;
 		$page = $_POST['page']; // get the requested page
 		$limit = $_POST['rows']; // get how many rows we want to have into the grid
 		$sidx = $_POST['sidx']; // get index row - i.e. user click to sort
@@ -140,15 +148,18 @@ class mainController
 		if(!$sidx) $sidx =1;
 		
 		$params = array(
-						"page" => $page
-						,"sidx" => $sidx
-						,"sord" => $sord
-						,"limit" => $limit
-					);
+                                "page" => $page
+                                ,"sidx" => $sidx
+                                ,"sord" => $sord
+                                ,"limit" => $limit
+                            );
 		
 		if(array_key_exists('filter', $_POST))
 			$params["filter"] = $_POST["filter"];
-		
+
+                if(array_key_exists('filters', $_POST) && !empty($_POST["filters"]))
+                    $params["where"] = json_decode (stripslashes($_POST["filters"]));
+                
 		if(array_key_exists('method', $_POST))
 			$grid = $this->model->$_POST["method"]($params);
 		else

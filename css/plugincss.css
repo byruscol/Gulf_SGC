@@ -13,3 +13,8 @@ hr {
 .ui-jqgrid .ui-jqgrid-bdiv {
     width: auto !important;
 }
+
+.ui-dialog .ui-dialog-titlebar-close {
+    background-image: url("images/ui-icons_ef8c08_256x240.png");
+    background-position: -96px -128px;
+}
