@@ -43,16 +43,11 @@ class Grid extends DBManager
             $Relation = $this->getDataGrid($query, null, null, $references["text"], "ASC");
 
             foreach ( $Relation["data"] as $k => $v ){
-                    $DataArray[] = "{".$Relation["data"][$k]->Id.":".htmlspecialchars($Relation["data"][$k]->Name)."}";
+                    $DataArray[] = $Relation["data"][$k]->Id.":".htmlspecialchars($Relation["data"][$k]->Name);
             }
-
-            $replaceBlank = array('"','{','}','[');
-            $replaceSemicolon = array(',',']');
-
-            $DataArray = str_ireplace($replaceBlank,'',json_encode($DataArray, JSON_UNESCAPED_UNICODE));
-            $DataArray = str_ireplace($replaceSemicolon,';',$DataArray);
-
-            return $DataArray;
+            
+            $data = implode(";", $DataArray);
+            return $data;
     }
 	
     function colModelFromTable(){
@@ -149,8 +144,8 @@ class Grid extends DBManager
                                                     'edittype' => 'select',
                                                     'formatter' => 'select',
                                                     'stype' => 'select',
-                                                    'editoptions' => array( value => "@'".$QueryData.":'@" ),
-                                                    'searchoptions' => array('value' => "@'".$QueryData.":'@")
+                                                    'editoptions' => array( value => "@'".$QueryData."'@" ),
+                                                    'searchoptions' => array('value' => "@'".$QueryData."'@")
     						)
                                             );
     				break;
@@ -375,13 +370,16 @@ class Grid extends DBManager
                                                         }';
                                     }else
                                         $grid .= ',{}';
-                                           
+                                    
+                                          
                                             $grid .= ',{multipleSearch:true
                                                             , multipleGroup:false
                                                             , showQuery: false
                                                             , sopt: ["eq", "ne", "lt", "le", "gt", "ge", "bw", "bn", "ew", "en", "cn", "nc", "nu", "nn", "in", "ni"]
                                                             , width:"99%"
-                                                        }).navSeparatorAdd("#' . $this->view . 'Pager").navButtonAdd("#' . $this->view . 'Pager",{
+                                                        })';
+                                                if($this->entity["entityConfig"]["view"]){     
+                                                    $grid .= '.navSeparatorAdd("#' . $this->view . 'Pager").navButtonAdd("#' . $this->view . 'Pager",{
                                                             caption:"", 
                                                             title: $.jgrid.nav.viewtitle,
                                                             buttonicon:"ui-icon-document", 
@@ -391,20 +389,40 @@ class Grid extends DBManager
                                                                     str += xx + " -> " + id[xx] + "<br/>";
                                                                 }*/
                                                                 var rowid = jQuery("#' . $this->view . '").jqGrid("getGridParam", "selrow");
-                                                                var rowData = jQuery("#' . $this->view . '").jqGrid("getRowData", rowid);
-                                                                var colModel = jQuery("#' . $this->view . '").jqGrid("getGridParam","colModel");
-                                                                var str = "";
-                                                                for(xx in colModel[0]){
-                                                                    str += xx + " : " + colModel[0][xx] + " -> " + rowData[xx] + "<br/>";
+                                                                if(rowid){
+                                                                    $.get( "'.$this->pluginURL.'views/'.$this->view.'View/'.$this->view.'Detail.php" )
+                                                                        .done(function( data ) {
+                                                                        
+                                                                            var rowData = jQuery("#' . $this->view . '").jqGrid("getRowData", rowid);
+                                                                            var colModel = jQuery("#' . $this->view . '").jqGrid("getGridParam","colModel");
+                                                                            
+                                                                            for(i = 0; i < colModel.length; i++){
+                                                                                data = data.replace("{"+colModel[i].name+"-Label}", colModel[i].label);
+                                                                                var valReplace = rowData[colModel[i].name];
+                                                                                if(colModel[i].editoptions && jQuery.type(colModel[i].editoptions["value"]) == "string" && colModel[i].editoptions["value"] != ""){
+                                                                                    var selectOptions = colModel[i].editoptions["value"].split(";");
+                                                                                    
+                                                                                    for(var selOp in selectOptions){
+                                                                                        selOpArray = selectOptions[selOp].split(":");
+                                                                                        if(selOpArray[0] == valReplace)
+                                                                                            valReplace = selOpArray[1];
+                                                                                    }
+                                                                                }
+                                                                                data = data.replace("{"+colModel[i].name+"}", valReplace);
+                                                                            }
+                                                                           
+                                                                            jQuery("<div>"+data+"</div>").dialog({
+                                                                                height: 400,
+                                                                                width: "95%",
+                                                                                modal: true,
+                                                                                title: $.jgrid.nav.viewtitle
+                                                                              });
+                                                                    });
                                                                 }
-
-                                                                jQuery("<div>"+str+"</div>").dialog({
-                                                                    height: 140,
-                                                                    modal: true
-                                                                  });
                                                             }, 
                                                             position:"last"
                                                          })';
+                                                }
                             $grid .= '})';
 
             echo  $grid;

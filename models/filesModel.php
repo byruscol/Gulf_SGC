@@ -41,7 +41,7 @@ class files extends DBManagerModel{
     public function del(){
 
     }
-
+    public function detail(){}
     public function entity()
     {
         $data = array(

@@ -9,5 +9,6 @@ abstract class DBManagerModel extends DBManager{
 	abstract protected function add();
 	abstract protected function edit();
 	abstract protected function del();
+        abstract protected function detail();
 }
 ?>

@@ -67,7 +67,7 @@
 		</div>
 	</div> 
 </div>
-
+<div id="nonConformityDetail"></div>
 <script>
     jQuery(function () {
       var tab = jQuery('#nonConformityTab li:eq(0) a').attr("href");

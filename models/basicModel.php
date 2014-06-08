@@ -5,5 +5,6 @@ class basic extends DBManagerModel{
 	public function add(){}
 	public function edit(){}
 	public function del(){}
+        public function detail(){}
 }
 ?>

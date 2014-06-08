@@ -21,8 +21,8 @@ $prot = explode("/",$_SERVER['SERVER_PROTOCOL']);
 $protocol = strtolower($prot[0]);
 $preFX = explode("/",$_SERVER['REQUEST_URI']);
 $URLPrefix = ($preFX[1] != $_SERVER['HTTP_HOST'])? $preFX[1] : '' ;
-$pluginName = explode(DIRECTORY_SEPARATOR,__DIR__);
-$pluginURL = $protocol."://".$_SERVER['HTTP_HOST']."/".$URLPrefix."/wp-content/plugins/".end($pluginName)."/";
+$pluginName = "Gulf_SGC";
+$pluginURL = $protocol."://".$_SERVER['HTTP_HOST']."/".$URLPrefix."/wp-content/plugins/".$pluginName."/";
 
 $prefixPlugin = "sgc_";
 $GeographicHierarchy = array("country" => array("table" => "countries"

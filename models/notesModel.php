@@ -10,7 +10,7 @@ class notes extends DBManagerModel{
                 $params["filter"] = 0;
 
         $start = $params["limit"] * $params["page"] - $params["limit"];
-        $query = "SELECT  `noteId`, `name`, `date_entered`, `display_name` AS created_user, created_by, `noteTypeId`,  `description`, ". $params["parent"] ." parentId, '". $params["parentRelationShip"] ."' parentRelationShip  
+        $query = "SELECT  `noteId`, `name`, `date_entered`, `display_name` AS created_user, `noteTypeId`,  `description`, created_by, ". $params["parent"] ." parentId, '". $params["parentRelationShip"] ."' parentRelationShip  
                           FROM  `".$entity["tableName"]."` n
                           JOIN ".$this->wpPrefix."users u ON u.ID = n.created_by
                           WHERE  deleted = 0 AND `noteId` IN ( ". $params["filter"] ." )";
@@ -63,20 +63,22 @@ class notes extends DBManagerModel{
         $this->delRecord($this->entity(), array("noteId" => $_POST["id"]), array("columnValidateEdit" => "created_by"));
     }
 
+    public function detail(){}
+    
     public function entity()
     {
         $data = array(
                         "tableName" => $this->pluginPrefix."notes"
                         ,"columnValidateEdit" => "created_by"
-                        ,"entityConfig" => array("add" => true, "edit" => true, "del" => true)
+                        ,"entityConfig" => array("add" => true, "edit" => true, "del" => true, "view" => true)
                         ,"atributes" => array(
                                         "noteId" => array("type" => "int", "PK" => 0, "required" => false, "readOnly" => true, "autoIncrement" => true )
                                         ,"name" => array("type" => "varchar", "required" => true)
                                         ,"date_entered" => array("type" => "datetime", "required" => false, "readOnly" => true )
-                                        ,"created_user" => array("type" => "varchar", "required" => false, "readOnly" => true, "update" => false)
-                                        ,"created_by" => array("type" => "int", "required" => false, "hidden" => true )            
+                                        ,"created_user" => array("type" => "varchar", "required" => false, "readOnly" => true, "update" => false, "isTableCol" => false)
                                         ,"noteTypeId" => array("type" => "int", "required" => true, "references" => array("table" => $this->pluginPrefix."noteTypes", "id" => "noteTypeId", "text" => "noteType"))
-                                        ,"description" => array("type" => "varchar", "required" => true, "text" => true)
+                                        ,"description" => array("type" => "varchar", "required" => true, "text" => true, "hidden" => true)
+                                        ,"created_by" => array("type" => "int", "required" => false, "hidden" => true, "isTableCol" => false )            
                                         ,"parentId" => array("type" => "int","required" => false, "hidden" => true, "isTableCol" => false)
                                         ,"parentRelationShip" => array("type" => "varchar","required" => false, "hidden" => true, "isTableCol" => false)
                                     )

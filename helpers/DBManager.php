@@ -107,7 +107,7 @@ abstract class DBManager{
                     if(!empty($queryFail))
                         echo $queryFail . " - SQL:[".$this->conn->last_query."]";
                     
-                    $this->conn->last_query;
+                    //echo $this->conn->last_query;
                     $this->queryType = "";
 		}
 		catch (Exception $e)
@@ -300,7 +300,6 @@ abstract class DBManager{
                                         );
                     }
                 }
-                //print_r($updateData);
                 if(count($updateData) > 0)
                 {
 

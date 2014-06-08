@@ -61,12 +61,14 @@ class tasks extends DBManagerModel{
         $this->delRecord($this->entity(), array("taskId" => $_POST["id"]), array("columnValidateEdit" => "assigned_user_id"));
     }
 
+    public function detail(){}
+    
     public function entity()
     {
         $data = array(
                         "tableName" => $this->pluginPrefix."tasks"
                         ,"columnValidateEdit" => "assigned_user_id"
-                        ,"entityConfig" => array("add" => true, "edit" => true, "del" => true)
+                        ,"entityConfig" => array("add" => true, "edit" => true, "del" => true, "view" => true)
                         ,"atributes" => array(
                             "taskId" => array("type" => "int", "PK" => 0, "required" => false, "readOnly" => true, "autoIncrement" => true )
                             ,"name" => array("type" => "varchar", "required" => true)
@@ -77,7 +79,7 @@ class tasks extends DBManagerModel{
                             ,"assigned_user_id" => array("type" => "int", "required" => true, "references" => array("table" => $this->wpPrefix."users", "id" => "ID", "text" => "display_name"))
                             ,"date_start" => array("type" => "datetime", "required" => true)
                             ,"date_due" => array("type" => "datetime", "required" => true)
-                            ,"description" => array("type" => "varchar", "required" => true, "text" => true)
+                            ,"description" => array("type" => "varchar", "required" => true, "text" => true, "hidden" => true)
                             ,"parentId" => array("type" => "int","required" => false, "hidden" => true, "isTableCol" => false)
                             ,"parentRelationShip" => array("type" => "varchar","required" => false, "hidden" => true, "isTableCol" => false)
                         )

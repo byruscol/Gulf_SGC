@@ -30,12 +30,16 @@ class nonConformity extends DBManagerModel{
         $this->delRecord($this->entity(), array("nonConformityId" => $_POST["id"]), array("columnValidateEdit" => "assigned_user_id"));
     }
 
+    public function detail(){
+        
+    }
+    
     public function entity()
     {
             $data = array(
                             "tableName" => $this->pluginPrefix."nonConformities"
                             ,"columnValidateEdit" => "assigned_user_id"
-                            ,"entityConfig" => array("add" => true, "edit" => true, "del" => true)
+                            ,"entityConfig" => array("add" => true, "edit" => true, "del" => true, "view" => true)
                             ,"atributes" => array(
                                 "nonConformityId" => array("type" => "int", "PK" => 0, "required" => false, "readOnly" => true, "autoIncrement" => true, "toolTip" => array("type" => "cell", "cell" => 2) )
                                 ,"name" => array("type" => "varchar", "required" => true)
