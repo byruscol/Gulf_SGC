@@ -10,6 +10,10 @@ hr {
     width: 99% !important;
 }
 
+.table {
+    width: 98% !important;
+}
+
 .ui-jqgrid .ui-jqgrid-bdiv {
     width: auto !important;
 }
@@ -18,3 +22,5 @@ hr {
     background-image: url("images/ui-icons_ef8c08_256x240.png");
     background-position: -96px -128px;
 }
+
+.i-icon-zoomin { background-position: -128px -112px !important; }

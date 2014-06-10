@@ -72,7 +72,8 @@ $.extend($.jgrid,{
 	    alertcap: "Aviso",
 	    alerttext: "Seleccione una fila",
 		viewtext: "",
-		viewtitle: "Ver fila seleccionada"
+		viewtitle: "Ver fila seleccionada",
+                viewdetail: "Ampliar detalles"
 	},
 	col : {
 	    caption: "Mostrar/ocultar columnas",

@@ -10,7 +10,7 @@ class nonConformity extends DBManagerModel{
         $query = "SELECT  `nonConformityId`, `name`, `description` 
                             , `estadonc`, `assigned_user_id`, `nombre_del_clientenc`
                             , `telefononc`, `fuentenc`, `generalidadnc`, `sedenc`
-                            , `gestion`, `clasificacion_nc`, created_by, `assigned_user_id`
+                            , `gestion`, `clasificacion_nc_c`, `tipo_cliente_c`
                           FROM ".$entity["tableName"]."
                           WHERE `deleted` = 0";
         
@@ -30,8 +30,24 @@ class nonConformity extends DBManagerModel{
         $this->delRecord($this->entity(), array("nonConformityId" => $_POST["id"]), array("columnValidateEdit" => "assigned_user_id"));
     }
 
-    public function detail(){
-        
+    public function detail($params = array()){
+        $entity = $this->entity();
+        $query = "SELECT n.`nonConformityId` , n.`name` , n.`description` , `status` `estadonc` 
+                        , `display_name` `assigned_user_id` , `nombre_del_clientenc` , `telefononc` 
+                        , `source` `fuentenc` , `generality` `generalidadnc` , `office` `sedenc` 
+                        , c.`classification` `clasificacion_nc_c` , m.`management` `gestion`, customerType `tipo_cliente_c`
+                    FROM ".$entity["tableName"]." n
+                    LEFT JOIN ".$this->pluginPrefix."status s ON s.statusid = n.estadonc
+                    LEFT JOIN ".$this->wpPrefix."users u ON u.ID = n.assigned_user_id
+                    LEFT JOIN ".$this->pluginPrefix."sources sc ON sc.sourceId = n.fuentenc
+                    LEFT JOIN ".$this->pluginPrefix."generalities g ON g.generalityId = n.generalidadnc
+                    LEFT JOIN ".$this->pluginPrefix."offices o ON o.officeId = n.sedenc
+                    LEFT JOIN ".$this->pluginPrefix."classifications c ON c.classificationId = clasificacion_nc_c
+                    LEFT JOIN ".$this->pluginPrefix."managements m ON m.managementId = n.gestion
+                    LEFT JOIN ".$this->pluginPrefix."customerTypes ct ON ct.customerTypeId = n.tipo_cliente_c
+                    WHERE n.`nonConformityId` = " . $params["filter"];
+        $this->queryType = "row";
+        return $this->getDataGrid($query);
     }
     
     public function entity()
@@ -51,10 +67,9 @@ class nonConformity extends DBManagerModel{
                                 ,"fuentenc" => array("type" => "tinyint", "required" => true, "references" => array("table" => $this->pluginPrefix."sources", "id" => "sourceId", "text" => "source"))
                                 ,"generalidadnc" => array("type" => "tinyint", "required" => true, "references" => array("table" => $this->pluginPrefix."generalities", "id" => "generalityId", "text" => "generality"))
                                 ,"sedenc" => array("type" => "tinyint", "required" => true, "references" => array("table" => $this->pluginPrefix."offices", "id" => "officeId", "text" => "office"))
-                                ,"gestion" => array("type" => "tinyint", "required" => true, "references" => array("table" => $this->pluginPrefix."managements", "id" => "managementId", "text" => "management")
-                                ,"clasificacion_nc" => array("type" => "tinyint", "required" => true, "references" => array("table" => $this->pluginPrefix."classifications", "id" => "classificationId", "text" => "classification"))
-                                ,"created_by" => array("type" => "bigint", "hidden" => true, "required" => false)
-                                ,"assigned_user_id" => array("type" => "char", "hidden" => true, "required" => false))
+                                ,"gestion" => array("type" => "tinyint", "required" => true, "references" => array("table" => $this->pluginPrefix."managements", "id" => "managementId", "text" => "management"))
+                                ,"clasificacion_nc_c" => array("type" => "tinyint", "required" => true, "references" => array("table" => $this->pluginPrefix."classifications", "id" => "classificationId", "text" => "classification"))
+                                ,"tipo_cliente_c" => array("type" => "tinyint", "required" => true, "references" => array("table" => $this->pluginPrefix."customerTypes", "id" => "customerTypeId", "text" => "customerType"))
                             )
                     );
             return $data;

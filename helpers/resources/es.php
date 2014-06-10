@@ -1,8 +1,10 @@
 <?php 
 $locale = array(
                 "assigned_user_id" => "Asignado"
+                ,"clasificacion_nc_c" => "Clasificación"
                 ,"created_by" => "Creado por"
                 ,"created_user" => "Creado por"
+                ,"tipo_cliente_c" => "Tipo de cliente"
                 ,"date_due" => "Fecha fin"
                 ,"date_entered" => "Fecha creación"
                 ,"date_start" => "Fecha inicio"

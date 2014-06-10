@@ -89,7 +89,6 @@ class Grid extends DBManager
     				'formoptions' => $option,
     				'hidden' => $hidden,
     				'classes'=> 'ellipsis'
-                                
     		);
     		
     		if(array_key_exists('references', $value))
@@ -169,7 +168,8 @@ class Grid extends DBManager
                         $model["editoptions"]["defaultValue"] = "@function(g){return '".date("Y-m-d H:i:s", time())."'}@";
                     }
                 
-                if(array_key_exists('toolTip', $value) && is_array($value['toolTip'])){
+               /* test tooltip description
+                * if(array_key_exists('toolTip', $value) && is_array($value['toolTip'])){
                     $return = "";
                     switch($value['toolTip']["type"]){
                         case "cell": $return = "rawObject[".$value['toolTip']["cell"]."]";break;
@@ -178,7 +178,7 @@ class Grid extends DBManager
                     
                     
                     $model["cellattr"] = "@function (rowId, val, rawObject, cm, rdata) { var tip = noHTMLTags(".$return."); return ' title = ' + tip; }@";
-                }    
+                }   */ 
                     
                 if($value['text']){
     			$model["edittype"] = "textarea";
@@ -193,7 +193,7 @@ class Grid extends DBManager
                             $model["formoptions"] = $option;
     			}
     			$k++;
-    			$j=1;
+    			$j=0;
                         
                         $this->beforeShowForm .= "setTextAreaForm(form,'tr_".$col."');";
     		}
@@ -371,7 +371,6 @@ class Grid extends DBManager
                                     }else
                                         $grid .= ',{}';
                                     
-                                          
                                             $grid .= ',{multipleSearch:true
                                                             , multipleGroup:false
                                                             , showQuery: false
@@ -421,7 +420,18 @@ class Grid extends DBManager
                                                                 }
                                                             }, 
                                                             position:"last"
-                                                         })';
+                                                         }).navButtonAdd("#' . $this->view . 'Pager",{
+                                                            caption:"", 
+                                                            title: $.jgrid.nav.viewdetail,
+                                                            buttonicon:"i-icon-zoomin", 
+                                                            onClickButton: function(){ 
+                                                                var rowid = jQuery("#' . $this->view . '").jqGrid("getGridParam", "selrow");
+                                                                if(rowid){
+                                                                    jQuery(location).attr("href","admin.php?page=' . $this->view . '&task=Details&rowid="+rowid );                                                                    
+                                                                }
+                                                            }, 
+                                                            position:"last"
+                                                        })';
                                                 }
                             $grid .= '})';
 

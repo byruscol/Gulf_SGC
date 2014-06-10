@@ -127,6 +127,8 @@ class mainController
 				if( $file != "." && $file != ".."){
 					if(is_file($JSPath.$file)){
 						$js =  $this->pluginURL . $viewJSScripts . $file ."?view=" . $this->controllerName;
+                                                 if(array_key_exists('rowid', $_GET))
+                                                    $js .= "&rowid=" . $_GET["rowid"];
 						$registerName = str_replace(".","",$file)."_" . $this->controllerName;
 						wp_register_script($registerName, $js, $this->headScripts);
 						wp_enqueue_script($registerName);
@@ -138,59 +140,72 @@ class mainController
 	}
 	
 	function action_callback() {
-		$responce = new StdClass;
-		$page = $_POST['page']; // get the requested page
-		$limit = $_POST['rows']; // get how many rows we want to have into the grid
-		$sidx = $_POST['sidx']; // get index row - i.e. user click to sort
-		$sord = $_POST['sord']; // get the direction
-		if ($limit < 0) $limit = 0;
-		
-		if(!$sidx) $sidx =1;
-		
-		$params = array(
-                                "page" => $page
-                                ,"sidx" => $sidx
-                                ,"sord" => $sord
-                                ,"limit" => $limit
-                            );
-		
-		if(array_key_exists('filter', $_POST))
-			$params["filter"] = $_POST["filter"];
+            $responce = new StdClass;
+            $page = $_POST['page']; // get the requested page
+            $limit = $_POST['rows']; // get how many rows we want to have into the grid
+            $sidx = $_POST['sidx']; // get index row - i.e. user click to sort
+            $sord = $_POST['sord']; // get the direction
+            if ($limit < 0) $limit = 0;
 
-                if(array_key_exists('filters', $_POST) && !empty($_POST["filters"]))
-                    $params["where"] = json_decode (stripslashes($_POST["filters"]));
-                
-		if(array_key_exists('method', $_POST))
-			$grid = $this->model->$_POST["method"]($params);
-		else
-			$grid = $this->model->getList($params);
+            if(!$sidx) $sidx =1;
 
-		if( $grid["totalRows"] > 0 && $limit > 0)
-			$total_pages = ceil($grid[totalRows]/$limit);
-		else 
-			$total_pages = 0;
-		
-		if ($page > $total_pages) $page = $total_pages;
-		
-		$responce->page = $page;
-		$responce->total = $total_pages;
-		$responce->records = $grid[totalRows];
-		
-		$countRows = count($grid["data"]);
-		$j = 0;
-		for ( $i = 0; $i < $countRows; $i++ )
-		{
-			foreach ( $grid["data"][$i] as $key => $value ){
-				if($j == 0){
-					$responce->rows[$i]['id']=$value;
-					$j = 1;
-				}
-				$responce->rows[$i]['cell'][]=$value;
-			}
-			$j = 0;
-		}
-		echo json_encode($responce, JSON_UNESCAPED_UNICODE);
-		die();
+            $params = array(
+                            "page" => $page
+                            ,"sidx" => $sidx
+                            ,"sord" => $sord
+                            ,"limit" => $limit
+                        );
+
+            if(array_key_exists('filter', $_POST))
+                $params["filter"] = $_POST["filter"];
+
+            if(array_key_exists('filters', $_POST) && !empty($_POST["filters"]))
+                $params["where"] = json_decode (stripslashes($_POST["filters"]));
+
+            if(array_key_exists('method', $_POST)){
+                $grid = $this->model->$_POST["method"]($params);
+            }
+            else{
+                $grid = $this->model->getList($params);
+            }
+            
+            if(is_array($grid["data"])){
+                if( $grid["totalRows"] > 0 && $limit > 0)
+                        $total_pages = ceil($grid[totalRows]/$limit);
+                else 
+                        $total_pages = 0;
+
+                if ($page > $total_pages) $page = $total_pages;
+
+                $responce->page = $page;
+                $responce->total = $total_pages;
+                $responce->records = $grid[totalRows];
+
+                $countRows = count($grid["data"]);
+                $j = 0;
+                for ( $i = 0; $i < $countRows; $i++ )
+                {
+                        foreach ( $grid["data"][$i] as $key => $value ){
+                                if(is_numeric($value))
+                                    $value = $value + 0;
+                                if($j == 0){
+                                    $responce->rows[$i]['id']=$value;
+                                    $j = 1;
+                                }
+                                $responce->rows[$i]['cell'][]=$value;
+                        }
+                        $j = 0;
+                }
+            }elseif(is_object($grid["data"])){
+                $responce->page = 1;
+                $responce->total = 1;
+                $responce->records = 1;
+                foreach ( $grid["data"] as $key => $value ){
+                    $responce->row[$key]=$value;
+                }
+            }
+            echo json_encode($responce, JSON_UNESCAPED_UNICODE);
+            die();
 	}
         
         function editOper($oper){
