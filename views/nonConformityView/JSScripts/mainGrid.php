@@ -21,6 +21,12 @@ $params = array("numRows" => 10
                                                                             postDataObj["parent"] = "'.$_GET["view"].'";
                                                                             jQuery("#tasks").jqGrid("setGridParam",{postData: postDataObj})
                                                                                             .trigger("reloadGrid");
+                                                                                        
+                                                                            postDataObj = jQuery("#files").jqGrid("getGridParam","postData");
+                                                                            postDataObj["filter"] = id;
+                                                                            postDataObj["parent"] = "'.$_GET["view"].'";
+                                                                            jQuery("#files").jqGrid("setGridParam",{postData: postDataObj})
+                                                                                            .trigger("reloadGrid");
                                                                     }
                                                                 }'
                                                 )

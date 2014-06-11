@@ -25,3 +25,7 @@ function setTextAreaForm(form, id){
 }
 
 function noHTMLTags(string){return string.replace(/(<([^>]+)>)/ig,'');}
+
+function selectFile(){
+    
+}

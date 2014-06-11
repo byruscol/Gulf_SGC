@@ -1,6 +1,8 @@
 <?php 
 $locale = array(
-                "assigned_user_id" => "Asignado"
+                "accept" => "Aceptar"
+                ,"assigned_user_id" => "Asignado"
+                ,"browse" => "Buscar"
                 ,"clasificacion_nc_c" => "Clasificación"
                 ,"created_by" => "Creado por"
                 ,"created_user" => "Creado por"
@@ -14,9 +16,11 @@ $locale = array(
                 ,"fuentenc" => "Fuente"
                 ,"fileId" => "Id archivo"
                 ,"fileName" => "Nombre archivo"
+                ,"fileSelect" => "Seleccione archivo"
                 ,"files" => "Archivos"
                 ,"generalidadnc" => "Generalidad"
                 ,"gestion" => "Gestión"
+                ,"LoadingFile" => "Cargando archivo..."
                 ,"name" => "Nombre"
                 ,"nombre_del_clientenc" => "Nombre del cliente"
                 ,"nonConformity" => "Quejas y reclamos"
@@ -31,5 +35,6 @@ $locale = array(
                 ,"taskId" => "No."
                 ,"tasks" => "Tareas"
                 ,"telefononc" => "Teléfono"
+                ,"uploadFile" => "Cargar archivo"
             );
 ?>

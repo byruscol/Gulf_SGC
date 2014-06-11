@@ -168,6 +168,14 @@ class Grid extends DBManager
                         $model["editoptions"]["defaultValue"] = "@function(g){return '".date("Y-m-d H:i:s", time())."'}@";
                     }
                 
+                if(array_key_exists('downloadFile', $value) && $value['downloadFile']["show"]){
+                    $icon = $this->pluginURL."images/file.jpg";
+                    if(is_file($this->pluginPath."/images/".$value['downloadFile']["cellIcon"].".jpg"))
+                        $icon = $this->pluginURL."/images/".$value['downloadFile']["cellIcon"].".jpg";
+                        
+                    $model["formatter"] = "@function(cellvalue, options, rowObject){return '<a title=\"'+cellvalue+'\" href=\"".$this->pluginURL."download.php?controller=".$this->view."&id='+cellvalue+'\" target=\"_blank\"> <img src=\"".$icon."\"/> </a>'}@";
+                }    
+                    
                /* test tooltip description
                 * if(array_key_exists('toolTip', $value) && is_array($value['toolTip'])){
                     $return = "";
