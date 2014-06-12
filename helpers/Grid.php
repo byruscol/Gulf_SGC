@@ -40,6 +40,11 @@ class Grid extends DBManager
             $DataArray = array();
 
             $query = "SELECT " . $references["id"] . " Id, " . $references["text"] . " Name FROM ". $references["table"];
+            
+            if(array_key_exists('filter', $references)){
+                $query .= " WHERE " . $references["id"] ." " . $references["filter"]["op"] . " " . $references["filter"]["value"];
+            }
+            
             $Relation = $this->getDataGrid($query, null, null, $references["text"], "ASC");
 
             foreach ( $Relation["data"] as $k => $v ){
@@ -170,10 +175,10 @@ class Grid extends DBManager
                 
                 if(array_key_exists('downloadFile', $value) && $value['downloadFile']["show"]){
                     $icon = $this->pluginURL."images/file.jpg";
-                    if(is_file($this->pluginPath."/images/".$value['downloadFile']["cellIcon"].".jpg"))
-                        $icon = $this->pluginURL."/images/".$value['downloadFile']["cellIcon"].".jpg";
                         
-                    $model["formatter"] = "@function(cellvalue, options, rowObject){return '<a title=\"'+cellvalue+'\" href=\"".$this->pluginURL."download.php?controller=".$this->view."&id='+cellvalue+'\" target=\"_blank\"> <img src=\"".$icon."\"/> </a>'}@";
+                    $model["formatter"] = "@function(cellvalue, options, rowObject){"
+                                            ."var icon = '".$this->pluginURL."/images/'+rowObject[8];"
+                                            . "return '<a title=\"'+cellvalue+'\" href=\"".$this->pluginURL."download.php?controller=".$this->view."&id='+cellvalue+'\" target=\"_blank\"> <img src=\"'+icon+'\"/> </a>'}@";
                 }    
                     
                /* test tooltip description

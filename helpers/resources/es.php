@@ -1,6 +1,7 @@
-<?php 
+<?php
 $locale = array(
                 "accept" => "Aceptar"
+                ,"actionRequest" => "Solicitudes de acción"
                 ,"assigned_user_id" => "Asignado"
                 ,"browse" => "Buscar"
                 ,"clasificacion_nc_c" => "Clasificación"
@@ -20,6 +21,7 @@ $locale = array(
                 ,"files" => "Archivos"
                 ,"generalidadnc" => "Generalidad"
                 ,"gestion" => "Gestión"
+                ,"HSEQDocs" => "Documentos HSEQ"
                 ,"LoadingFile" => "Cargando archivo..."
                 ,"name" => "Nombre"
                 ,"nombre_del_clientenc" => "Nombre del cliente"
@@ -28,12 +30,15 @@ $locale = array(
                 ,"noteId" => "No."
                 ,"notes" => "Notas"
                 ,"noteTypeId" => "Tipo de nota"
+                ,"PQRCustomerService" => "PQR Servicio al cliente"
                 ,"priority" => "Prioridad"
+                ,"request" => "Peticiones"
                 ,"sedenc" => "Sede"
+                ,"SGC" => "Sistema control de calidad"
                 ,"size" => "Tamaño"
                 ,"status" => "Estado"
                 ,"taskId" => "No."
-                ,"tasks" => "Tareas"
+                ,"tasks" => "Tareas PQR"
                 ,"telefononc" => "Teléfono"
                 ,"uploadFile" => "Cargar archivo"
             );

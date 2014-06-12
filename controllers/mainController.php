@@ -1,7 +1,8 @@
 <?php
 /*error_reporting(E_ALL);
 ini_set('display_errors', '1');*/
-class mainController
+
+class mainController //extends resources
 {
     private $pluginPath = "";
     private $pluginURL = "";
@@ -11,16 +12,18 @@ class mainController
     private $PrefixPlugin;
     private $controllerName;
     private $headScripts = array();
-
+    private $resource;
     function __construct($controller = "basic", $showView = true) {
 
         global $prefixPlugin;
         global $pluginURL;
         global $pluginPath;
-
+        global $resource;
         $this->prefix = $prefixPlugin;
         $this->pluginURL = $pluginURL;
         $this->pluginPath = $pluginPath;
+        $this->resource = $resource;
+        
         $controllerFile = $this->pluginPath."/models/".$controller."Model.php";
 
         if(file_exists($controllerFile)){ 
@@ -61,10 +64,11 @@ class mainController
         $countMenus = count($menus);
         for ( $i = 0; $i <  $countMenus; $i++)
         {
+            //echo $menus[$i]->MenuTitle."<br>";
                 if($menus[$i]->MenuType == 1)
-                        add_menu_page($menus[$i]->PageTitle,$menus[$i]->MenuTitle, $menus[$i]->Capability, $menus[$i]->MenuSlug, $menus[$i]->FunctionMenu);
+                        add_menu_page($this->resource->getWord($menus[$i]->PageTitle),$this->resource->getWord($menus[$i]->MenuTitle), $menus[$i]->Capability, $menus[$i]->MenuSlug, $menus[$i]->FunctionMenu);
                 else
-                        add_submenu_page( $menus[$i]->PageTitle, $menus[$i]->MenuTitle,$menus[$i]->MenuTitle, $menus[$i]->Capability, $menus[$i]->MenuSlug, $menus[$i]->FunctionMenu );
+                        add_submenu_page( $menus[$i]->parentSlug, $this->resource->getWord($menus[$i]->PageTitle),$this->resource->getWord($menus[$i]->MenuTitle), $menus[$i]->Capability, $menus[$i]->MenuSlug, $menus[$i]->FunctionMenu );
         }
     }
 

@@ -26,6 +26,9 @@ function setTextAreaForm(form, id){
 
 function noHTMLTags(string){return string.replace(/(<([^>]+)>)/ig,'');}
 
-function selectFile(){
-    
+function imageExist(url) 
+{
+   var img = new Image();
+   img.src = url;
+   return (img.height != 0)? true : false;
 }

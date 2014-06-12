@@ -10,7 +10,7 @@ $details = new Details($viewFile);
         <div class="jqGrid">
             <div class="wrap">
                 <div id="icon-tools" class="icon32"></div>
-                <h2><?php echo $resource->getWord("nonConformity"); ?></h2>
+                <h2><?php echo $resource->getWord("request"); ?></h2>
             </div>
             <div class="span12">
                 <?php $details->renderDetail();?>

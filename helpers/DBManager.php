@@ -232,7 +232,6 @@ abstract class DBManager{
         }
 
         if($edit){
-
             foreach($entity["atributes"] as $key => $value){
 
                 if(array_key_exists("PK", $value))
@@ -283,7 +282,7 @@ abstract class DBManager{
                 $edit = false;
             }
         }
-
+        
         if($edit){
             foreach($entity["atributes"] as $key => $value){
 

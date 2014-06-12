@@ -84,15 +84,23 @@ class tasks extends DBManagerModel{
                             ,"parentRelationShip" => array("type" => "varchar","required" => false, "hidden" => true, "isTableCol" => false)
                         )
                         ,"relationship" => array(
-                                        "nonConformity" => array(
-                                                            "tableName" => $this->pluginPrefix."nonConformities_tasks"
-                                                            ,"parent" => array("tableName" => $this->pluginPrefix."nonConformities", "Id" => "nonConformityId")
-                                                            ,"atributes" => array(
-                                                                            "nonConformityId" => array("type" => "int", "PK" => 0)
-                                                                            ,"taskId" => array("type" => "int", "PK" => 0)
-                                                                        )
-                                                        )
+                            "nonConformity" => array(
+                                    "tableName" => $this->pluginPrefix."nonConformities_tasks"
+                                    ,"parent" => array("tableName" => $this->pluginPrefix."nonConformities", "Id" => "nonConformityId")
+                                    ,"atributes" => array(
+                                        "nonConformityId" => array("type" => "int", "PK" => 0)
+                                        ,"taskId" => array("type" => "int", "PK" => 0)
                                     )
+                                )
+                            ,"request" => array(
+                                    "tableName" => $this->pluginPrefix."nonConformities_tasks"
+                                    ,"parent" => array("tableName" => $this->pluginPrefix."nonConformities", "Id" => "nonConformityId")
+                                    ,"atributes" => array(
+                                        "nonConformityId" => array("type" => "int", "PK" => 0)
+                                        ,"taskId" => array("type" => "int", "PK" => 0)
+                                    )
+                                )
+                        )
                 );
         return $data;
     }

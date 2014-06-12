@@ -19,7 +19,18 @@ if(!file_exists($viewFile)){
 	$viewFile = $pluginPath. "/views/basicView/basicView.php";
 }
 
+function PQRCustomerService(){
+    
+}
+
 function nonConformity() {
+    global $pluginPath;
+    global $viewFile;
+    global $resource;
+    require_once($viewFile);
+}
+
+function request() {
     global $pluginPath;
     global $viewFile;
     global $resource;

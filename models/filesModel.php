@@ -28,7 +28,16 @@ class files extends DBManagerModel{
            $query .= " AND (". $this->buildWhere($params["where"]) .")";
         }
         
-        return $this->getDataGrid($query, $start, $params["limit"] , $params["sidx"], $params["sord"] );
+        $data = $this->getDataGrid($query, $start, $params["limit"] , $params["sidx"], $params["sord"] );
+        
+        foreach($data["data"] as $key => $value){
+            $data["data"][$key]->icon = "file.jpg";
+            if(is_file($this->pluginPath."/images/".$value->ext.".jpg")){
+                $data["data"][$key]->icon = $value->ext.".jpg";
+            }
+        }
+        
+        return $data;
     }
 
     public function getNonConformitiesFiles($params = array()){
@@ -59,14 +68,18 @@ class files extends DBManagerModel{
             $relEntity = $entityObj["relationship"][$_POST["parentRelationShip"]];
             $target_path = $this->pluginPath."/uploadedFiles/";
             $_POST["fileName"] = $_FILES['file']['name'];
-            $_POST["ext"] = end(explode(".", $_FILES['file']['name']));
+            $nameParts = explode(".", $_FILES['file']['name']);
+            $_POST["ext"] = end($nameParts);
+            $nameArray = array_pop($nameParts);
+            $fileName = implode("_",$nameParts);
+            $fileName = str_replace(array("'",".",",","*","@","?","!"), "_",$fileName);
             $_POST["mime"] =  $_FILES["file"]["type"];
             $_POST["size"] =  $_FILES["file"]["size"];
             
             $this->addRecord($entityObj, $_POST, array("created" => date("Y-m-d H:i:s"), "created_by" => $this->currentUser->ID));
             $id = $this->LastId;
             $this->addRecord($relEntity, array($relEntity["parent"]["Id"] => $_POST["parentId"],"fileId" => $this->LastId), array());
-            $file = $target_path.$_FILES['file']['name'];
+            $file = $target_path.$fileName.".".$_POST["ext"];
             if(move_uploaded_file($_FILES['file']['tmp_name'], $file)) {
                 $this->uploadFile($id, $file);
                 $rtnData->msg = 'success';
@@ -94,24 +107,33 @@ class files extends DBManagerModel{
                     ,"columnValidateEdit" => "created_by"
                     ,"entityConfig" => array("add" => false, "edit" => false, "del" => true, "view" => false)
                     ,"atributes" => array(
-                        "fileId" => array("type" => "int", "PK" => 0, "required" => false, "readOnly" => true, "autoIncrement" => true, "downloadFile" => array("show" => true, "cellIcon" => "ext") )
+                        "fileId" => array("type" => "int", "PK" => 0, "required" => false, "readOnly" => true, "autoIncrement" => true, "downloadFile" => array("show" => true, "cellIcon" => 5) )
                         ,"name" => array("type" => "varchar", "required" => true)
                         ,"fileName" => array("type" => "varchar", "required" => true)
                         ,"date_entered" => array("type" => "datetime", "required" => false, "readOnly" => true, "isTableCol" => false )
                         ,"created_user" => array("type" => "varchar", "required" => false, "readOnly" => true, "update" => false, "isTableCol" => false)
                         ,"ext" => array("type" => "varchar", "required" => false, "hidden" => true)
                         ,"size" => array("type" => "bigint", "required" => false, "hidden" => true)
-                        ,"created_by" => array("type" => "int", "required" => false, "hidden" => true, "isTableCol" => false )
+                        ,"created_by" => array("type" => "int", "required" => false, "hidden" => true )
+                        ,"icon" => array("type" => "varchar", "required" => false, "hidden" => true, "isTableCol" => false)
                     )
                     ,"relationship" => array(
                         "nonConformity" => array(
-                                "tableName" => $this->pluginPrefix."nonConformities_files"
-                                ,"parent" => array("tableName" => $this->pluginPrefix."nonConformities", "Id" => "nonConformityId")
-                                ,"atributes" => array(
+                                    "tableName" => $this->pluginPrefix."nonConformities_files"
+                                    ,"parent" => array("tableName" => $this->pluginPrefix."nonConformities", "Id" => "nonConformityId")
+                                    ,"atributes" => array(
+                                            "nonConformityId" => array("type" => "int", "PK" => 0)
+                                            ,"fileId" => array("type" => "int", "PK" => 0)
+                                       )
+                                )
+                        ,"request" => array(
+                                    "tableName" => $this->pluginPrefix."nonConformities_files"
+                                    ,"parent" => array("tableName" => $this->pluginPrefix."nonConformities", "Id" => "nonConformityId")
+                                    ,"atributes" => array(
                                         "nonConformityId" => array("type" => "int", "PK" => 0)
                                         ,"fileId" => array("type" => "int", "PK" => 0)
-                                   )
-                            )
+                                    )
+                                )
                     )
                 );
             return $data;

@@ -57,10 +57,12 @@ class notes extends DBManagerModel{
         $this->addRecord($relEntity, array($relEntity["parent"]["Id"] => $_POST["parentId"],"noteId" => $this->LastId), array());
     }
     public function edit(){
-        $this->updateRecord($this->entity(), $_POST, array("noteId" => $_POST["noteId"]), array("columnValidateEdit" => "created_by"));
+        $entityObj = $this->entity();
+        $this->updateRecord($entityObj, $_POST, array("noteId" => $_POST["noteId"]), array("columnValidateEdit" => $entityObj["columnValidateEdit"]));
     }
     public function del(){
-        $this->delRecord($this->entity(), array("noteId" => $_POST["id"]), array("columnValidateEdit" => "created_by"));
+        $entityObj = $this->entity();
+        $this->delRecord($entityObj, array("noteId" => $_POST["id"]), array("columnValidateEdit" => $entityObj["columnValidateEdit"]));
     }
 
     public function detail(){}
@@ -78,20 +80,28 @@ class notes extends DBManagerModel{
                                         ,"created_user" => array("type" => "varchar", "required" => false, "readOnly" => true, "update" => false, "isTableCol" => false)
                                         ,"noteTypeId" => array("type" => "int", "required" => true, "references" => array("table" => $this->pluginPrefix."noteTypes", "id" => "noteTypeId", "text" => "noteType"))
                                         ,"description" => array("type" => "varchar", "required" => true, "text" => true, "hidden" => true)
-                                        ,"created_by" => array("type" => "int", "required" => false, "hidden" => true, "isTableCol" => false )            
+                                        ,"created_by" => array("type" => "int", "required" => false, "hidden" => true )            
                                         ,"parentId" => array("type" => "int","required" => false, "hidden" => true, "isTableCol" => false)
                                         ,"parentRelationShip" => array("type" => "varchar","required" => false, "hidden" => true, "isTableCol" => false)
                                     )
                         ,"relationship" => array(
-                                        "nonConformity" => array(
-                                                            "tableName" => $this->pluginPrefix."nonConformities_notes"
-                                                            ,"parent" => array("tableName" => $this->pluginPrefix."nonConformities", "Id" => "nonConformityId")
-                                                            ,"atributes" => array(
-                                                                            "nonConformityId" => array("type" => "int", "PK" => 0)
-                                                                            ,"noteId" => array("type" => "int", "PK" => 0)
-                                                                        )
-                                                        )
+                                "nonConformity" => array(
+                                        "tableName" => $this->pluginPrefix."nonConformities_notes"
+                                        ,"parent" => array("tableName" => $this->pluginPrefix."nonConformities", "Id" => "nonConformityId")
+                                        ,"atributes" => array(
+                                            "nonConformityId" => array("type" => "int", "PK" => 0)
+                                            ,"noteId" => array("type" => "int", "PK" => 0)
+                                        )
                                     )
+                                ,"request" => array(
+                                        "tableName" => $this->pluginPrefix."nonConformities_notes"
+                                        ,"parent" => array("tableName" => $this->pluginPrefix."nonConformities", "Id" => "nonConformityId")
+                                        ,"atributes" => array(
+                                            "nonConformityId" => array("type" => "int", "PK" => 0)
+                                            ,"noteId" => array("type" => "int", "PK" => 0)
+                                        )
+                                    )
+                            )
                     );
         return $data;
     }
