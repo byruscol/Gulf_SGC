@@ -50,12 +50,12 @@ class request extends DBManagerModel{
         return $this->getDataGrid($query);
     }
     
-    public function entity()
+    public function entity($CRUD = array())
     {
             $data = array(
                             "tableName" => $this->pluginPrefix."nonConformities"
                             ,"columnValidateEdit" => "assigned_user_id"
-                            ,"entityConfig" => array("add" => true, "edit" => true, "del" => true, "view" => true)
+                            ,"entityConfig" => $CRUD
                             ,"atributes" => array(
                                 "nonConformityId" => array("type" => "int", "PK" => 0, "required" => false, "readOnly" => true, "autoIncrement" => true, "toolTip" => array("type" => "cell", "cell" => 2) )
                                 ,"name" => array("type" => "varchar", "required" => true)

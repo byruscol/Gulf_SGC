@@ -31,22 +31,41 @@ class notes extends DBManagerModel{
     }
 
     public function getNonConformitiesNotes($params = array()){
-            $query = "SELECT  `noteId`
-                              FROM  `".$this->pluginPrefix."nonConformities_notes` n
-                              WHERE  `nonConformityId` = " . $params["filter"];
+        $query = "SELECT  `noteId`
+                  FROM  `".$this->pluginPrefix."nonConformities_notes` n
+                  WHERE  `nonConformityId` = " . $params["filter"];
 
-            $responce = $this->getDataGrid($query);
+        $responce = $this->getDataGrid($query);
 
-            foreach ( $responce["data"] as $k => $v ){
-                    $DataArray[] = $responce["data"][$k]->noteId;
-            }
-            
-            $params["parentRelationShip"] = "nonConformity";
-            $params["parent"] = $params["filter"];
-            $params["filter"] = implode(",", $DataArray);
+        foreach ( $responce["data"] as $k => $v ){
+                $DataArray[] = $responce["data"][$k]->noteId;
+        }
 
-            $data = $this->getList($params);
-            return $data;
+        $params["parentRelationShip"] = "nonConformity";
+        $params["parent"] = $params["filter"];
+        $params["filter"] = implode(",", $DataArray);
+
+        $data = $this->getList($params);
+        return $data;
+    }
+    
+    public function getTasksNotes($params = array()){
+        $query = "SELECT  `noteId`
+                  FROM  `".$this->pluginPrefix."tasks_notes` n
+                  WHERE  `taskId` = " . $params["filter"];
+
+        $responce = $this->getDataGrid($query);
+
+        foreach ( $responce["data"] as $k => $v ){
+                $DataArray[] = $responce["data"][$k]->noteId;
+        }
+
+        $params["parentRelationShip"] = "tasks";
+        $params["parent"] = $params["filter"];
+        $params["filter"] = implode(",", $DataArray);
+
+        $data = $this->getList($params);
+        return $data;
     }
 
     public function add(){
@@ -64,15 +83,13 @@ class notes extends DBManagerModel{
         $entityObj = $this->entity();
         $this->delRecord($entityObj, array("noteId" => $_POST["id"]), array("columnValidateEdit" => $entityObj["columnValidateEdit"]));
     }
-
     public function detail(){}
-    
-    public function entity()
+    public function entity($CRUD = array())
     {
         $data = array(
                         "tableName" => $this->pluginPrefix."notes"
                         ,"columnValidateEdit" => "created_by"
-                        ,"entityConfig" => array("add" => true, "edit" => true, "del" => true, "view" => true)
+                        ,"entityConfig" => $CRUD
                         ,"atributes" => array(
                                         "noteId" => array("type" => "int", "PK" => 0, "required" => false, "readOnly" => true, "autoIncrement" => true )
                                         ,"name" => array("type" => "varchar", "required" => true)
@@ -98,6 +115,14 @@ class notes extends DBManagerModel{
                                         ,"parent" => array("tableName" => $this->pluginPrefix."nonConformities", "Id" => "nonConformityId")
                                         ,"atributes" => array(
                                             "nonConformityId" => array("type" => "int", "PK" => 0)
+                                            ,"noteId" => array("type" => "int", "PK" => 0)
+                                        )
+                                    )
+                                ,"tasks" => array(
+                                        "tableName" => $this->pluginPrefix."tasks_notes"
+                                        ,"parent" => array("tableName" => $this->pluginPrefix."tasks", "Id" => "taskId")
+                                        ,"atributes" => array(
+                                            "taskId" => array("type" => "int", "PK" => 0)
                                             ,"noteId" => array("type" => "int", "PK" => 0)
                                         )
                                     )

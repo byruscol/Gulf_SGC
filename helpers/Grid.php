@@ -27,7 +27,7 @@ class Grid extends DBManager
                     require_once $this->pluginPath."/models/".$v."Model.php";
                     $this->baseId = $t;
                     $this->table = $this->pluginPrefix.$t;
-                    $this->entity = $v::entity();
+                    $this->entity = $v::entity($p["CRUD"]);
                     $this->gridBuilderFromTable();
             }
     }

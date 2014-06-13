@@ -32,8 +32,8 @@ class tasks extends DBManagerModel{
 
     public function getNonConformitiesTasks($params = array()){
         $query = "SELECT  `taskId`
-                          FROM  `".$this->pluginPrefix."nonConformities_tasks`
-                          WHERE  `nonConformityId` = " . $params["filter"];
+                  FROM  `".$this->pluginPrefix."nonConformities_tasks`
+                  WHERE  `nonConformityId` = " . $params["filter"];
 
         $responce = $this->getDataGrid($query);
 
@@ -47,6 +47,24 @@ class tasks extends DBManagerModel{
         return $data;
     }
 
+    public function getMyTasks($params = array()){
+        $entity = $this->entity();
+        $query = "SELECT  `taskId`
+                  FROM  `".$entity["tableName"]."`
+                  WHERE  `assigned_user_id` = " . $this->currentUser->ID;
+
+        $responce = $this->getDataGrid($query);
+
+        foreach ( $responce["data"] as $k => $v ){
+                $DataArray[] = $responce["data"][$k]->taskId;
+        }
+
+        $params["filter"] = implode(",", $DataArray);
+
+        $data = $this->getList($params);
+        return $data;
+    }
+    
     public function add(){
         $entityObj = $this->entity();
         $relEntity = $entityObj["relationship"][$_POST["parentRelationShip"]];
@@ -60,15 +78,25 @@ class tasks extends DBManagerModel{
     public function del(){
         $this->delRecord($this->entity(), array("taskId" => $_POST["id"]), array("columnValidateEdit" => "assigned_user_id"));
     }
-
-    public function detail(){}
-    
-    public function entity()
+    public function detail($params = array()){
+        $entity = $this->entity();
+        $query = "SELECT `taskId`, `name`, s.`status`, p.priority `priority`, `date_entered`, u.`display_name` AS `created_by`
+                                         , u.`display_name` as `assigned_user_id`, `date_start`,  `date_due`, `description` 
+                  FROM  `".$entity["tableName"]."` n
+                  JOIN ".$this->wpPrefix."users u ON u.ID = n.created_by
+                  LEFT JOIN ".$this->pluginPrefix."status s ON s.statusid = n.status
+                  LEFT JOIN ".$this->pluginPrefix."priorities p ON p.priorityId = n.priority
+                  LEFT JOIN ".$this->wpPrefix."users ua ON ua.ID = n.assigned_user_id
+                  WHERE n.taskId = " . $params["filter"];
+        $this->queryType = "row";
+        return $this->getDataGrid($query);
+    }    
+    public function entity($CRUD = array())
     {
         $data = array(
                         "tableName" => $this->pluginPrefix."tasks"
                         ,"columnValidateEdit" => "assigned_user_id"
-                        ,"entityConfig" => array("add" => true, "edit" => true, "del" => true, "view" => true)
+                        ,"entityConfig" => $CRUD
                         ,"atributes" => array(
                             "taskId" => array("type" => "int", "PK" => 0, "required" => false, "readOnly" => true, "autoIncrement" => true )
                             ,"name" => array("type" => "varchar", "required" => true)

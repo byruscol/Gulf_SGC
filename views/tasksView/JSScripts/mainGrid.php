@@ -5,8 +5,9 @@ require_once "../../../helpers/Grid.php";
 require_once "../../class.buildView.php";
 header('Content-type: text/javascript');
 $params = array("numRows" => 10
-                , "sortname" => "nonConformityId"
-                , "CRUD" => array("add" => true, "edit" => true, "del" => true, "view" => true)
+                , "sortname" => "date_entered"
+                , "CRUD" => array("add" => false, "edit" => true, "del" => true, "view" => true)
+                , "postData" => array("method" => "getMyTasks")
                 , "actions" => array(
                                         array("type" => "onSelectRow"
                                                   ,"function" => 'function(id) {
@@ -16,13 +17,7 @@ $params = array("numRows" => 10
                                                                             postDataObj["parent"] = "'.$_GET["view"].'";
                                                                             jQuery("#notes").jqGrid("setGridParam",{postData: postDataObj})
                                                                                             .trigger("reloadGrid");
-
-                                                                            postDataObj = jQuery("#tasks").jqGrid("getGridParam","postData");
-                                                                            postDataObj["filter"] = id;
-                                                                            postDataObj["parent"] = "'.$_GET["view"].'";
-                                                                            jQuery("#tasks").jqGrid("setGridParam",{postData: postDataObj})
-                                                                                            .trigger("reloadGrid");
-                                                                                        
+             
                                                                             postDataObj = jQuery("#files").jqGrid("getGridParam","postData");
                                                                             postDataObj["filter"] = id;
                                                                             postDataObj["parent"] = "'.$_GET["view"].'";
@@ -33,5 +28,5 @@ $params = array("numRows" => 10
                                                 )
                                     )
             );
-$view = new buildView($_GET["view"], $params, "nonConformities");
+$view = new buildView($_GET["view"], $params, "tasks");
 ?>

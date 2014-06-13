@@ -36,4 +36,11 @@ function request() {
     global $resource;
     require_once($viewFile);
 }
+
+function tasks() {
+    global $pluginPath;
+    global $viewFile;
+    global $resource;
+    require_once($viewFile);
+}
 ?>

@@ -60,6 +60,26 @@ class files extends DBManagerModel{
         return $data;
     }
 
+    public function getTasksFiles($params = array()){
+        
+        $query = "SELECT  `fileId`
+                  FROM  `".$this->pluginPrefix."tasks_files` n
+                  WHERE  `taskId` = " . $params["filter"];
+
+        $responce = $this->getDataGrid($query);
+
+        foreach ( $responce["data"] as $k => $v ){
+                $DataArray[] = $responce["data"][$k]->fileId;
+        }
+
+        $params["parentRelationShip"] = "tasks";
+        $params["parent"] = $params["filter"];
+        $params["filter"] = implode(",", $DataArray);
+
+        $data = $this->getList($params);
+        return $data;
+    }
+    
     public function add(){
         $rtnData = new stdClass();
         $rtnData->error = '';
@@ -100,12 +120,12 @@ class files extends DBManagerModel{
         $this->delRecord($this->entity(), array("fileId" => $_POST["id"]), array("columnValidateEdit" => "created_by"));
     }
     public function detail(){}
-    public function entity()
+    public function entity($CRUD = array())
     {
         $data = array(
                     "tableName" => $this->pluginPrefix."files"
                     ,"columnValidateEdit" => "created_by"
-                    ,"entityConfig" => array("add" => false, "edit" => false, "del" => true, "view" => false)
+                    ,"entityConfig" => $CRUD
                     ,"atributes" => array(
                         "fileId" => array("type" => "int", "PK" => 0, "required" => false, "readOnly" => true, "autoIncrement" => true, "downloadFile" => array("show" => true, "cellIcon" => 5) )
                         ,"name" => array("type" => "varchar", "required" => true)
@@ -134,6 +154,14 @@ class files extends DBManagerModel{
                                         ,"fileId" => array("type" => "int", "PK" => 0)
                                     )
                                 )
+                        ,"tasks" => array(
+                                        "tableName" => $this->pluginPrefix."tasks_files"
+                                        ,"parent" => array("tableName" => $this->pluginPrefix."files", "Id" => "taskId")
+                                        ,"atributes" => array(
+                                            "taskId" => array("type" => "int", "PK" => 0)
+                                            ,"fileId" => array("type" => "int", "PK" => 0)
+                                        )
+                                    )
                     )
                 );
             return $data;
