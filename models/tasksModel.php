@@ -65,6 +65,53 @@ class tasks extends DBManagerModel{
         return $data;
     }
     
+    public function getChart($params = array()){
+        switch ($params["queryId"])
+        {
+            case "pieMyTask": 
+                $query = "SELECT s.`status` text , COUNT( 1 ) total
+                    FROM `wp_sgc_tasks` t
+                    LEFT JOIN wp_sgc_status s ON s.statusid = t.status
+                    WHERE t.deleted = 0 AND t.`assigned_user_id` = " . $this->currentUser->ID."
+                    GROUP BY t.`status`";
+                break;
+            case "barMyTask"; 
+                $query = "SELECT s.`status`, 'Sin fechas' Expired , COUNT( 1 ) Q
+                            FROM `wp_sgc_tasks` t
+                            LEFT JOIN wp_sgc_status s ON s.statusid = t.status
+                            WHERE t.deleted = 0 AND t.`assigned_user_id` = " . $this->currentUser->ID."
+                                    AND (date_due IS NULL OR date_start IS NULL)
+                            GROUP BY t.`status`
+                                UNION
+                            SELECT 'Vencida' Expired , s.`status` , COUNT( 1 ) Q
+                            FROM `wp_sgc_tasks` t
+                            LEFT JOIN wp_sgc_status s ON s.statusid = t.status
+                            WHERE t.deleted = 0 AND t.`assigned_user_id` = " . $this->currentUser->ID."
+                                    AND date_due < CURDATE()
+                                    AND date_due IS NOT NULL AND date_start IS NOT NULL 
+                            GROUP BY t.`status`
+                                UNION
+                            SELECT d.Expired, d.status, COUNT( 1 ) total
+                            FROM (
+
+                            SELECT s.`status` , date_start, date_due, CURDATE( ) 
+                                    , IF( (DATEDIFF( CURDATE() , date_start ) / DATEDIFF( date_due, date_START ) ) IS NULL , 'Vence hoy'
+                                            ,IF( (DATEDIFF( CURDATE() , date_start ) / DATEDIFF( date_due, date_START ) ) >= 0.9, 'proxima a vencer', 'Con tiempo')
+                                       )Expired
+                            FROM `wp_sgc_tasks` t
+                            LEFT JOIN wp_sgc_status s ON s.statusid = t.status
+                            WHERE t.deleted =0
+                            AND t.`assigned_user_id` = " . $this->currentUser->ID."
+                            AND date_due >= CURDATE()
+                            AND date_due IS NOT NULL AND date_start IS NOT NULL    
+                            )d
+                            GROUP BY d.Expired, d.status
+                            ORDER BY status, Expired;";
+                break;
+        }
+        return $this->getDataGrid($query);
+    }
+    
     public function add(){
         $entityObj = $this->entity();
         $relEntity = $entityObj["relationship"][$_POST["parentRelationShip"]];

@@ -105,6 +105,10 @@ class mainController //extends resources
         wp_enqueue_script( 'tinymceJQuery' );
 
         $this->headScripts[] = 'tinymceJQuery';
+        wp_register_script('googlechart', 'https://www.google.com/jsapi',$this->headScripts);
+        wp_enqueue_script( 'googlechart' );
+  
+        $this->headScripts[] = 'googlechart';
         wp_register_script('pluginjs',  $this->pluginURL . 'js/pluginjs.js',$this->headScripts);
         wp_enqueue_script( 'pluginjs' );
 

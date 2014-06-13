@@ -5,6 +5,10 @@
                 <div id="icon-tools" class="icon32"></div>
                 <h2><?php echo $resource->getWord("tasks"); ?></h2>
             </div>
+            <div class="row-fluid">
+                <div id="taskPieChart" style="height:250px" class="col-md-5"></div>  
+                <div id="taskBarChart" style="height:250px" class="col-md-7"></div>  
+            </div>
             <div class="span12">
             <table id="tasks"></table>
             <div id="tasksPager"></div>

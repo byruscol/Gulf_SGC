@@ -5,6 +5,7 @@ $locale = array(
                 ,"assigned_user_id" => "Asignado"
                 ,"browse" => "Buscar"
                 ,"clasificacion_nc_c" => "Clasificación"
+                ,"consolidateTaskStauts" => "Consolidado por estado de las tareas"
                 ,"created_by" => "Creado por"
                 ,"created_user" => "Creado por"
                 ,"tipo_cliente_c" => "Tipo de cliente"

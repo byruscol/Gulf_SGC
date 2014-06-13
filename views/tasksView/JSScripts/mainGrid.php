@@ -2,7 +2,10 @@
 /*error_reporting(E_ALL);
 ini_set('display_errors', '1');*/
 require_once "../../../helpers/Grid.php";
+require_once "../../../helpers/Charts.php";
 require_once "../../class.buildView.php";
+require_once "../../class.buildChartView.php";
+
 header('Content-type: text/javascript');
 $params = array("numRows" => 10
                 , "sortname" => "date_entered"
@@ -28,5 +31,11 @@ $params = array("numRows" => 10
                                                 )
                                     )
             );
+$chartParams = array("title"=>"consolidateTaskStauts","subtitle"=>"puntoacopio", "queryId" => "pieMyTask");
+$viewPieChart = new buildChartView("pie",$chartParams,"taskPieChart","tasks");
+$chartParams = array("title"=>"consolidateTaskStauts","subtitle"=>"puntoacopio", "queryId" => "barMyTask", "chartConfig" => array("series" => "status", "rows" => "Expired", "data" => "Q"));
+$viewBarChart = new buildChartView("stackedBar",$chartParams,"taskBarChart","tasks");
+
 $view = new buildView($_GET["view"], $params, "tasks");
+
 ?>
