@@ -41,7 +41,7 @@ class files extends DBManagerModel{
     }
 
     public function getNonConformitiesFiles($params = array()){
-        
+        $DataArray= array();
         $query = "SELECT  `fileId`
                               FROM  `".$this->pluginPrefix."nonConformities_files` n
                               WHERE  `nonConformityId` = " . $params["filter"];
@@ -61,13 +61,13 @@ class files extends DBManagerModel{
     }
 
     public function getTasksFiles($params = array()){
-        
+        $DataArray= array();
         $query = "SELECT  `fileId`
                   FROM  `".$this->pluginPrefix."tasks_files` n
                   WHERE  `taskId` = " . $params["filter"];
 
         $responce = $this->getDataGrid($query);
-
+        
         foreach ( $responce["data"] as $k => $v ){
                 $DataArray[] = $responce["data"][$k]->fileId;
         }

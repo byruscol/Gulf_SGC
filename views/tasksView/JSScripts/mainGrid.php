@@ -33,8 +33,8 @@ $params = array("numRows" => 10
             );
 $chartParams = array("title"=>"consolidateTaskStauts","subtitle"=>"puntoacopio", "queryId" => "pieMyTask");
 $viewPieChart = new buildChartView("pie",$chartParams,"taskPieChart","tasks");
-$chartParams = array("title"=>"consolidateTaskStauts","subtitle"=>"puntoacopio", "queryId" => "barMyTask", "chartConfig" => array("series" => "status", "rows" => "Expired", "data" => "Q"));
-$viewBarChart = new buildChartView("stackedBar",$chartParams,"taskBarChart","tasks");
+$chartParams = array("title"=>"consolidateTaskStauts","subtitle"=>"puntoacopio", "queryId" => "barMyTask", "chartConfig" => array("series" => "status", "rows" => "Expired", "data" => "Q", "isStacked" => false));
+$viewBarChart = new buildChartView("bar",$chartParams,"taskBarChart","tasks");
 
 $view = new buildView($_GET["view"], $params, "tasks");
 

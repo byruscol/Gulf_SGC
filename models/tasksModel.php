@@ -10,11 +10,13 @@ class tasks extends DBManagerModel{
                 $params["filter"] = 0;
 
         $start = $params["limit"] * $params["page"] - $params["limit"];
-        $query = "SELECT `taskId`, `name`, `status`, `priority`, `date_entered`, `display_name` AS `created_by`
-                                         , `assigned_user_id`, `date_start`,  `date_due`, `description` 
+        $query = "SELECT n.`taskId`, `taskType`, `name`, `status`, `priority`, `date_entered`, `display_name` AS `created_by`
+                                         , `assigned_user_id`, `date_start`,  `date_due`, `Expired` ExpiredStatus, `description` 
                           FROM  `".$entity["tableName"]."` n
                           JOIN ".$this->wpPrefix."users u ON u.ID = n.created_by
-                          WHERE  `deleted` = 0 AND `taskId` IN ( ". $params["filter"] ." )";
+                          JOIN ".$this->pluginPrefix."taskTypes t ON t.taskTypeId = n.taskTypeId
+                          LEFT JOIN timetasksstatus tts On tts.taskId = n.taskId
+                          WHERE  `deleted` = 0 AND n.`taskId` IN ( ". $params["filter"] ." )";
         if(array_key_exists('where', $params)){
             if (is_array( $params["where"]->rules )){
                 $countRules = count($params["where"]->rules);
@@ -26,7 +28,7 @@ class tasks extends DBManagerModel{
             
            $query .= " AND (". $this->buildWhere($params["where"]) .")";
         }
-        
+        //echo $query;
         return $this->getDataGrid($query, $start, $params["limit"] , $params["sidx"], $params["sord"] );
     }
 
@@ -83,7 +85,7 @@ class tasks extends DBManagerModel{
                                     AND (date_due IS NULL OR date_start IS NULL)
                             GROUP BY t.`status`
                                 UNION
-                            SELECT 'Vencida' Expired , s.`status` , COUNT( 1 ) Q
+                            SELECT s.`status` , 'Vencida' Expired , COUNT( 1 ) Q
                             FROM `wp_sgc_tasks` t
                             LEFT JOIN wp_sgc_status s ON s.statusid = t.status
                             WHERE t.deleted = 0 AND t.`assigned_user_id` = " . $this->currentUser->ID."
@@ -91,19 +93,18 @@ class tasks extends DBManagerModel{
                                     AND date_due IS NOT NULL AND date_start IS NOT NULL 
                             GROUP BY t.`status`
                                 UNION
-                            SELECT d.Expired, d.status, COUNT( 1 ) total
+                            SELECT d.`status` ,d.Expired, COUNT( 1 ) total
                             FROM (
-
-                            SELECT s.`status` , date_start, date_due, CURDATE( ) 
-                                    , IF( (DATEDIFF( CURDATE() , date_start ) / DATEDIFF( date_due, date_START ) ) IS NULL , 'Vence hoy'
-                                            ,IF( (DATEDIFF( CURDATE() , date_start ) / DATEDIFF( date_due, date_START ) ) >= 0.9, 'proxima a vencer', 'Con tiempo')
-                                       )Expired
-                            FROM `wp_sgc_tasks` t
-                            LEFT JOIN wp_sgc_status s ON s.statusid = t.status
-                            WHERE t.deleted =0
-                            AND t.`assigned_user_id` = " . $this->currentUser->ID."
-                            AND date_due >= CURDATE()
-                            AND date_due IS NOT NULL AND date_start IS NOT NULL    
+                                SELECT s.`status` , date_start, date_due, CURDATE( ) 
+                                        , IF( (DATEDIFF( CURDATE() , date_start ) / DATEDIFF( date_due, date_START ) ) IS NULL , 'Vence hoy'
+                                                ,IF( (DATEDIFF( CURDATE() , date_start ) / DATEDIFF( date_due, date_START ) ) >= 0.9, 'proxima a vencer', 'Con tiempo')
+                                           )Expired
+                                FROM `wp_sgc_tasks` t
+                                LEFT JOIN wp_sgc_status s ON s.statusid = t.status
+                                WHERE t.deleted =0
+                                AND t.`assigned_user_id` = " . $this->currentUser->ID."
+                                AND date_due >= CURDATE()
+                                AND date_due IS NOT NULL AND date_start IS NOT NULL    
                             )d
                             GROUP BY d.Expired, d.status
                             ORDER BY status, Expired;";
@@ -115,8 +116,9 @@ class tasks extends DBManagerModel{
     public function add(){
         $entityObj = $this->entity();
         $relEntity = $entityObj["relationship"][$_POST["parentRelationShip"]];
+        $taskType = $entityObj["relationship"][$_POST["taskType"]];
         
-        $this->addRecord($entityObj, $_POST, array("date_entered" => date("Y-m-d H:i:s"), "created_by" => $this->currentUser->ID));
+        $this->addRecord($entityObj, $_POST, array("date_entered" => date("Y-m-d H:i:s"), "created_by" => $this->currentUser->ID, "taskTypeId" => $taskType));
         $this->addRecord($relEntity, array($relEntity["parent"]["Id"] => $_POST["parentId"],"taskId" => $this->LastId), array());
     }
     public function edit(){
@@ -127,13 +129,15 @@ class tasks extends DBManagerModel{
     }
     public function detail($params = array()){
         $entity = $this->entity();
-        $query = "SELECT `taskId`, `name`, s.`status`, p.priority `priority`, `date_entered`, u.`display_name` AS `created_by`
-                                         , u.`display_name` as `assigned_user_id`, `date_start`,  `date_due`, `description` 
+        $query = "SELECT n.`taskId`, `taskType`, `name`, s.`status`, p.priority `priority`, `date_entered`, u.`display_name` AS `created_by`
+                                         , u.`display_name` as `assigned_user_id`, `date_start`,  `date_due`, `Expired` ExpiredStatus, `description` 
                   FROM  `".$entity["tableName"]."` n
                   JOIN ".$this->wpPrefix."users u ON u.ID = n.created_by
+                  JOIN ".$this->pluginPrefix."taskTypes t ON t.taskTypeId = n.taskTypeId
                   LEFT JOIN ".$this->pluginPrefix."status s ON s.statusid = n.status
                   LEFT JOIN ".$this->pluginPrefix."priorities p ON p.priorityId = n.priority
                   LEFT JOIN ".$this->wpPrefix."users ua ON ua.ID = n.assigned_user_id
+                  LEFT JOIN timetasksstatus tts On tts.taskId = n.taskId
                   WHERE n.taskId = " . $params["filter"];
         $this->queryType = "row";
         return $this->getDataGrid($query);
@@ -146,6 +150,7 @@ class tasks extends DBManagerModel{
                         ,"entityConfig" => $CRUD
                         ,"atributes" => array(
                             "taskId" => array("type" => "int", "PK" => 0, "required" => false, "readOnly" => true, "autoIncrement" => true )
+                            ,"taskType" => array("type" => "varchar","required" => false, "isTableCol" => false)
                             ,"name" => array("type" => "varchar", "required" => true)
                             ,"status" => array("type" => "int", "required" => true, "references" => array("table" => $this->pluginPrefix."status", "id" => "statusId", "text" => "status"))
                             ,"priority" => array("type" => "int", "required" => true, "references" => array("table" => $this->pluginPrefix."priorities", "id" => "priorityId", "text" => "priority"))
@@ -154,6 +159,7 @@ class tasks extends DBManagerModel{
                             ,"assigned_user_id" => array("type" => "int", "required" => true, "references" => array("table" => $this->wpPrefix."users", "id" => "ID", "text" => "display_name"))
                             ,"date_start" => array("type" => "datetime", "required" => true)
                             ,"date_due" => array("type" => "datetime", "required" => true)
+                            ,"ExpiredStatus" => array("type" => "varchar","required" => false, "isTableCol" => false)
                             ,"description" => array("type" => "varchar", "required" => true, "text" => true, "hidden" => true)
                             ,"parentId" => array("type" => "int","required" => false, "hidden" => true, "isTableCol" => false)
                             ,"parentRelationShip" => array("type" => "varchar","required" => false, "hidden" => true, "isTableCol" => false)
@@ -161,6 +167,7 @@ class tasks extends DBManagerModel{
                         ,"relationship" => array(
                             "nonConformity" => array(
                                     "tableName" => $this->pluginPrefix."nonConformities_tasks"
+                                    ,"taskType" => 2
                                     ,"parent" => array("tableName" => $this->pluginPrefix."nonConformities", "Id" => "nonConformityId")
                                     ,"atributes" => array(
                                         "nonConformityId" => array("type" => "int", "PK" => 0)
@@ -169,6 +176,7 @@ class tasks extends DBManagerModel{
                                 )
                             ,"request" => array(
                                     "tableName" => $this->pluginPrefix."nonConformities_tasks"
+                                    ,"taskType" => 1
                                     ,"parent" => array("tableName" => $this->pluginPrefix."nonConformities", "Id" => "nonConformityId")
                                     ,"atributes" => array(
                                         "nonConformityId" => array("type" => "int", "PK" => 0)

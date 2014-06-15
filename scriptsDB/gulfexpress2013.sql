@@ -456,6 +456,7 @@ CREATE TABLE IF NOT EXISTS `wp_sgc_systemDocumentTypes` (
 
 CREATE TABLE IF NOT EXISTS `wp_sgc_tasks` (
   `taskId` int(11) NOT NULL AUTO_INCREMENT,
+  `taskTypeId` tinyint(2) NOT NULL,
   `name` varchar(50) DEFAULT NULL,
   `date_entered` datetime DEFAULT NULL,
   `date_modified` datetime DEFAULT NULL,
@@ -475,8 +476,30 @@ CREATE TABLE IF NOT EXISTS `wp_sgc_tasks` (
   KEY `created_by` (`created_by`),
   KEY `assigned_user_id` (`assigned_user_id`),
   KEY `status` (`status`),
-  KEY `priority` (`priority`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=131 ;
+  KEY `priority` (`priority`),
+  KEY `taskTypeId` (`taskTypeId`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `wp_sgc_tasktypes`
+--
+
+CREATE TABLE IF NOT EXISTS `wp_sgc_tasktypes` (
+  `taskTypeId` tinyint(2) NOT NULL AUTO_INCREMENT,
+  `taskType` varchar(25) NOT NULL,
+  PRIMARY KEY (`taskTypeId`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=4 ;
+
+--
+-- Volcado de datos para la tabla `wp_sgc_tasktypes`
+--
+
+INSERT INTO `wp_sgc_tasktypes` (`taskTypeId`, `taskType`) VALUES
+(0, 'noType'),
+(1, 'actionrequests'),
+(2, 'nonconformities');
 
 -- --------------------------------------------------------
 
@@ -507,6 +530,14 @@ CREATE TABLE IF NOT EXISTS `wp_sgc_tasks_notes` (
 --
 -- Constraints for dumped tables
 --
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `timetasksstatus`
+--
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `timetasksstatus` AS select `t`.`taskId` AS `taskId`,'Sin fechas' AS `Expired` from `wp_sgc_tasks` `t` where (isnull(`t`.`date_due`) or isnull(`t`.`date_start`)) union select `t`.`taskId` AS `taskId`,'Vencida' AS `Expired` from `wp_sgc_tasks` `t` where ((`t`.`date_due` < curdate()) and (`t`.`date_due` is not null) and (`t`.`date_start` is not null)) union select `t`.`taskId` AS `taskId`,if(isnull(((to_days(curdate()) - to_days(`t`.`date_start`)) / (to_days(`t`.`date_due`) - to_days(`t`.`date_start`)))),'Vence hoy',if((((to_days(curdate()) - to_days(`t`.`date_start`)) / (to_days(`t`.`date_due`) - to_days(`t`.`date_start`))) >= 0.9),'proxima a vencer','Con tiempo')) AS `Expired` from `wp_sgc_tasks` `t` where ((`t`.`date_due` >= curdate()) and (`t`.`date_due` is not null) and (`t`.`date_start` is not null));
 
 --
 -- Constraints for table `wp_sgc_actionRequests`
@@ -617,6 +648,7 @@ ALTER TABLE `wp_sgc_systemDocuments_files`
 -- Constraints for table `wp_sgc_tasks`
 --
 ALTER TABLE `wp_sgc_tasks`
+  ADD CONSTRAINT `wp_sgc_tasks_ibfk_3` FOREIGN KEY (`taskTypeId`) REFERENCES `wp_sgc_tasktypes` (`taskTypeId`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `FK_tasks_Users_assigned` FOREIGN KEY (`assigned_user_id`) REFERENCES `wp_users` (`ID`),
   ADD CONSTRAINT `FK_tasks_Users_Created` FOREIGN KEY (`created_by`) REFERENCES `wp_users` (`ID`),
   ADD CONSTRAINT `FK_tasks_Users_Mod` FOREIGN KEY (`modified_user_id`) REFERENCES `wp_users` (`ID`),

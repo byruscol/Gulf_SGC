@@ -31,6 +31,7 @@ class notes extends DBManagerModel{
     }
 
     public function getNonConformitiesNotes($params = array()){
+        $DataArray= array();
         $query = "SELECT  `noteId`
                   FROM  `".$this->pluginPrefix."nonConformities_notes` n
                   WHERE  `nonConformityId` = " . $params["filter"];
@@ -50,6 +51,7 @@ class notes extends DBManagerModel{
     }
     
     public function getTasksNotes($params = array()){
+        $DataArray= array();
         $query = "SELECT  `noteId`
                   FROM  `".$this->pluginPrefix."tasks_notes` n
                   WHERE  `taskId` = " . $params["filter"];

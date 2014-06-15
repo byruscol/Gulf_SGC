@@ -14,6 +14,7 @@ $locale = array(
                 ,"date_start" => "Fecha inicio"
                 ,"description" => "Descripción"
                 ,"estadonc" => "Estado"
+                ,"ExpiredStatus" => "Estado tiempo"
                 ,"ext" => "Tipo archivo"
                 ,"fuentenc" => "Fuente"
                 ,"fileId" => "Id archivo"
@@ -40,6 +41,7 @@ $locale = array(
                 ,"status" => "Estado"
                 ,"taskId" => "No."
                 ,"tasks" => "Tareas PQR"
+                ,"taskType" => "Tipo de tarea"
                 ,"telefononc" => "Teléfono"
                 ,"uploadFile" => "Cargar archivo"
             );

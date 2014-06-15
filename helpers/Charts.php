@@ -37,30 +37,52 @@ class Charts extends DBManager
             $dataChart = $this->data["data"];
             $dataCol = array();
             
-            //"chartConfig" => array("series" => "status", "rows" => "Expired", "data" => "Q")
             if(array_key_exists('chartConfig', $this->params)){
-                $series = array("serie");
+                $series = array();
+                $rows = array();
+                $bulidChartData = array();
+
+                $serie = $this->params["chartConfig"]["series"];
+                $row = $this->params["chartConfig"]["rows"];
+                $q = $this->params["chartConfig"]["data"];
+                
                 $dataRow = array();
-                //echo $this->params["chartConfig"]["series"];
                 foreach($dataChart as $k => $v){
-                    $serie = $this->params["chartConfig"]["series"];
-                    $row = $this->params["chartConfig"]["rows"];
-                    $q = $this->params["chartConfig"]["data"];
-                    $series[] = $v->$serie;
-                    $dataRow[$v->$row][] = $v->$q;
+                    
+                    if (!in_array($v->$serie, $series))
+                        $series[] = $v->$serie;
+                    
+                    if (!in_array($v->$row, $rows))
+                        $rows[] = $v->$row;
+                    
                 }
-                $series = array_unique($series);
-                        //[] = array("role" => "annotation");
-                $dataCol[] = $series;
-                foreach($dataRow as $key => $value){
-                    $row = array($key);
-                    foreach($value as $k => $v){
-                        $row[] = $v + 0;
+                $cr = count($rows);
+                $cs = count($series);
+                
+                for($i = 0; $i < $cr; $i++){
+                    for($j = 0; $j < $cs; $j++){
+                        $bulidChartData[$rows[$i]][$series[$j]] = 0;
                     }
-                    $dataCol[] = $row;
                 }
                 
-                //print_r($dataCol);
+                foreach($dataChart as $k => $v){
+                    if($v->$serie && $v->$row)
+                        $bulidChartData[$v->$row][$v->$serie] = $v->$q + 0;
+                }
+                array_unshift($series, "serie");
+                
+                $dataCol[] = $series;
+                
+                foreach($bulidChartData as $key => $value){
+                    $rowData = array($key);
+                    foreach($value as $k => $v){
+                        $rowData[] = $v;
+                    }
+                    $dataCol[] = $rowData;
+                }
+                
+                $isStacked = (array_key_exists("isStacked", $this->params["chartConfig"]) && $this->params["chartConfig"]["isStacked"])? "true" : "false";
+                
             }
             else
             {
@@ -79,25 +101,15 @@ class Charts extends DBManager
 
             header('Content-type: text/javascript');
             switch ($this->type) {
-                case "stackedBar":
-                    /*[
-                                ['Sin fechas','In Progress',13]
-                                ,['Sin fechas','Completed',80]
-                                ,['Sin fechas','Deferred',1]
-                                ,['Vencida','Abierta',8]
-                                ,['Vencida','In Progress',1]
-                                ,['Vencida','Completed',6]
-                                ,['Vencida','Deferred',1]
-                                ,['Con tiempo','In Progress',1]
-                                ,['Vence hoy','Abierta',1]
-                            ]
+                case "bar":
+                    /*  [
                             [
                               ['Year', 'Sales', 'Expenses'],
                               ['2004',  1000,      400],
                               ['2005',  1170,      460],
                               ['2006',  660,       1120],
                               ['2007',  1030,      540]
-                            ]*/
+                        ]*/
                     $chart = "
                         google.load('visualization', '1', {packages:['corechart']});
                         google.setOnLoadCallback(".$this->div.");
@@ -108,7 +120,7 @@ class Charts extends DBManager
                               title: '".$this->loc->getWord($this->params["title"])."',
                               legend: { position: 'top', maxLines: 3 },
                                 bar: { groupWidth: '75%' },
-                                isStacked: true
+                                isStacked: ".$isStacked."
                             };
 
                             var chart = new google.visualization.ColumnChart(document.getElementById('".$this->div."'));
