@@ -69,6 +69,26 @@ class notes extends DBManagerModel{
         $data = $this->getList($params);
         return $data;
     }
+    
+    public function getActionRequestsNotes($params = array()){
+        $DataArray= array();
+        $query = "SELECT  `noteId`
+                  FROM  `".$this->pluginPrefix."actionRequests_notes` n
+                  WHERE  `actionRequestId` = " . $params["filter"];
+
+        $responce = $this->getDataGrid($query);
+
+        foreach ( $responce["data"] as $k => $v ){
+                $DataArray[] = $responce["data"][$k]->noteId;
+        }
+
+        $params["parentRelationShip"] = "tasks";
+        $params["parent"] = $params["filter"];
+        $params["filter"] = implode(",", $DataArray);
+
+        $data = $this->getList($params);
+        return $data;
+    }
 
     public function add(){
         $entityObj = $this->entity();
@@ -125,6 +145,14 @@ class notes extends DBManagerModel{
                                         ,"parent" => array("tableName" => $this->pluginPrefix."tasks", "Id" => "taskId")
                                         ,"atributes" => array(
                                             "taskId" => array("type" => "int", "PK" => 0)
+                                            ,"noteId" => array("type" => "int", "PK" => 0)
+                                        )
+                                    )
+                                ,"actionRequest" => array(
+                                        "tableName" => $this->pluginPrefix."actionRequests_notes"
+                                        ,"parent" => array("tableName" => $this->pluginPrefix."actionRequests", "Id" => "actionRequestId")
+                                        ,"atributes" => array(
+                                            "actionRequestId" => array("type" => "int", "PK" => 0)
                                             ,"noteId" => array("type" => "int", "PK" => 0)
                                         )
                                     )

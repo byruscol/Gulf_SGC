@@ -80,6 +80,26 @@ class files extends DBManagerModel{
         return $data;
     }
     
+    public function getActionRequestsFiles($params = array()){
+        $DataArray= array();
+        $query = "SELECT  `fileId`
+                  FROM  `".$this->pluginPrefix."actionRequests_files` n
+                  WHERE  `actionRequestId` = " . $params["filter"];
+
+        $responce = $this->getDataGrid($query);
+        
+        foreach ( $responce["data"] as $k => $v ){
+                $DataArray[] = $responce["data"][$k]->fileId;
+        }
+
+        $params["parentRelationShip"] = "tasks";
+        $params["parent"] = $params["filter"];
+        $params["filter"] = implode(",", $DataArray);
+
+        $data = $this->getList($params);
+        return $data;
+    }
+    
     public function add(){
         $rtnData = new stdClass();
         $rtnData->error = '';
@@ -156,9 +176,17 @@ class files extends DBManagerModel{
                                 )
                         ,"tasks" => array(
                                         "tableName" => $this->pluginPrefix."tasks_files"
-                                        ,"parent" => array("tableName" => $this->pluginPrefix."files", "Id" => "taskId")
+                                        ,"parent" => array("tableName" => $this->pluginPrefix."tasks", "Id" => "taskId")
                                         ,"atributes" => array(
                                             "taskId" => array("type" => "int", "PK" => 0)
+                                            ,"fileId" => array("type" => "int", "PK" => 0)
+                                        )
+                                    )
+                        ,"actionRequest" => array(
+                                        "tableName" => $this->pluginPrefix."actionRequests_files"
+                                        ,"parent" => array("tableName" => $this->pluginPrefix."actionRequests", "Id" => "actionRequestId")
+                                        ,"atributes" => array(
+                                            "actionRequestId" => array("type" => "int", "PK" => 0)
                                             ,"fileId" => array("type" => "int", "PK" => 0)
                                         )
                                     )

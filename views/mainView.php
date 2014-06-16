@@ -20,7 +20,10 @@ if(!file_exists($viewFile)){
 }
 
 function PQRCustomerService(){
-    
+    global $pluginPath;
+    global $viewFile;
+    global $resource;
+    require_once($viewFile);
 }
 
 function nonConformity() {
@@ -41,6 +44,14 @@ function tasks() {
     global $pluginPath;
     global $viewFile;
     global $resource;
+    require_once($viewFile);
+}
+
+function actionRequest() {
+    global $pluginPath;
+    global $viewFile;
+    global $resource;
+    //echo $viewFile;
     require_once($viewFile);
 }
 ?>

@@ -37,7 +37,10 @@ class Charts extends DBManager
             $dataChart = $this->data["data"];
             $dataCol = array();
             
-            if(array_key_exists('chartConfig', $this->params)){
+            if(array_key_exists('chartConfig', $this->params) &&
+                array_key_exists('series', $this->params["chartConfig"]) &&
+                array_key_exists('rows', $this->params["chartConfig"]) &&
+                array_key_exists('data', $this->params["chartConfig"])){
                 $series = array();
                 $rows = array();
                 $bulidChartData = array();
@@ -123,8 +126,20 @@ class Charts extends DBManager
                                 isStacked: ".$isStacked."
                             };
 
-                            var chart = new google.visualization.ColumnChart(document.getElementById('".$this->div."'));
-                            chart.draw(data, options);
+                            var chart = new google.visualization.ColumnChart(document.getElementById('".$this->div."'));";
+                            if(array_key_exists('listeners', $this->params["chartConfig"]) &&is_array($this->params["chartConfig"]["listeners"]) ){
+                                $listeners = $this->params["chartConfig"]["listeners"];
+                                $countListeners = count($listeners);
+                                for($i = 0; $i < $countListeners; $i++){
+                                    $chart .= "
+                                        google.visualization.events.addListener(chart, '".$listeners[$i]["type"]."', function(){
+                                                ".$listeners[$i]["function"]."
+                                            }
+                                        });
+                                        ";
+                                }
+                            }
+                            $chart .= "chart.draw(data, options);
                         }
                         jQuery(document).ready(function ($) {
                             $(window).resize(function(){
@@ -143,8 +158,20 @@ class Charts extends DBManager
                           data.addColumn('number', 'Slices');
                           data.addRows(".$dc.");                                     
                           var options = {'title':'".$this->loc->getWord($this->params["title"])."'};
-                          var chart = new google.visualization.PieChart(document.getElementById('".$this->div."'));
-                          chart.draw(data, options);
+                          var chart = new google.visualization.PieChart(document.getElementById('".$this->div."'));";
+                          if(array_key_exists('listeners', $this->params["chartConfig"]) && is_array($this->params["chartConfig"]["listeners"]) ){
+                              $listeners = $this->params["chartConfig"]["listeners"];
+                                $countListeners = count($listeners);
+                                for($i = 0; $i < $countListeners; $i++){
+                                    $chart .= "
+                                        google.visualization.events.addListener(chart, '".$listeners[$i]["type"]."', function(){
+                                                ".$listeners[$i]["function"]."
+                                            }
+                                        });
+                                        ";
+                                }
+                            }
+                            $chart .= "chart.draw(data, options);
                         }
 
                         jQuery(document).ready(function ($) {

@@ -90,12 +90,11 @@ class tasks extends DBManagerModel{
     public function getChart($params = array()){
         switch ($params["queryId"])
         {
-            case "pieMyTask": 
-                $query = "SELECT s.`status` text , COUNT( 1 ) total
-                    FROM `wp_sgc_tasks` t
-                    LEFT JOIN wp_sgc_status s ON s.statusid = t.status
-                    WHERE t.deleted = 0 AND t.`assigned_user_id` = " . $this->currentUser->ID."
-                    GROUP BY t.`status`";
+            case "PQRPieChart": 
+                $query = "SELECT s.status, COUNT( 1 ) Q
+                        FROM `".$this->pluginPrefix."nonConformities` n
+                        LEFT JOIN `w".$this->pluginPrefix."status` s ON s.statusid = n.`estadonc`
+                        GROUP BY `estadonc";
                 break;
             case "barMyTask"; 
                 $query = "SELECT s.status, ts.Expired, COUNT( 1 ) Q
