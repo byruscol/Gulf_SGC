@@ -7,8 +7,11 @@
     </div>
     <div class="span12"></div>
     <div id="dashboard" class="span11">
-        <div id="PQRPieChart" style="height:250px" class="col-md-5"></div>  
-        <div id="PQRBarChart" style="height:250px" class="col-md-7"></div>  
+        <div id="PPieChart" style="height:250px" class="col-md-4"></div>
+        <div id="QPieChart" style="height:250px" class="col-md-4"></div>  
+        <div id="RPieChart" style="height:250px" class="col-md-4"></div>
+        <div id="PQRBarSourceChart" style="height:250px" class="col-md-6"></div>
+        <div id="RPieChart" style="height:250px" class="col-md-6"></div>
     </div>
 </div>    
 <!--    <div class="span11">

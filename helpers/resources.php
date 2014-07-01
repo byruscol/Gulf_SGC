@@ -2,14 +2,16 @@
 /*error_reporting(E_ALL);
 ini_set('display_errors', '1');*/
 class resources{
-	public $locale;
+        private $locale;
 	private $pluginPath;
 	function __construct($l = "es"){
             global $pluginPath;
             $locale = array();
+            //echo __FILE__;
             $this->pluginPath = $pluginPath;
             require_once $this->pluginPath.'/helpers/resources/'. $l .'.php';
             $this->locale = $locale;
+            
             //print_r($this->locale);    
 	}
 	
@@ -18,7 +20,7 @@ class resources{
                     $word = (array_key_exists($key, $this->locale ))? $this->locale[$key] : $key;
                 }
 		else 
-			$word = $key;
+                    $word = $key;
 		return	$word;
 	}
 }

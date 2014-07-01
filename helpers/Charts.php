@@ -36,6 +36,7 @@ class Charts extends DBManager
             $total = $this->data["total"];
             $dataChart = $this->data["data"];
             $dataCol = array();
+            $isStacked = "false";
             
             if(array_key_exists('chartConfig', $this->params) &&
                 array_key_exists('series', $this->params["chartConfig"]) &&
@@ -89,7 +90,13 @@ class Charts extends DBManager
             }
             else
             {
+                if(array_key_exists('chartConfig', $this->params) &&
+                    array_key_exists('serieName', $this->params["chartConfig"]) &&
+                    array_key_exists('ValueName', $this->params["chartConfig"]) )
+                    $dataCol[] = array($this->loc->getWord($this->params["chartConfig"]["serieName"]),$this->loc->getWord($this->params["chartConfig"]["ValueName"]), array("role" => "annotation"));
+                
                 foreach($dataChart as $k => $v){
+                    
                     $dataArray = array();
                     foreach($v as $key => $value){
                         if(is_numeric($value)){
@@ -97,6 +104,7 @@ class Charts extends DBManager
                         }
                         $dataArray[] = $value;
                     }
+                    $dataArray[] = '';
                     $dataCol[] = $dataArray;                    
                 }
             }
@@ -113,6 +121,7 @@ class Charts extends DBManager
                               ['2006',  660,       1120],
                               ['2007',  1030,      540]
                         ]*/
+                    
                     $chart = "
                         google.load('visualization', '1', {packages:['corechart']});
                         google.setOnLoadCallback(".$this->div.");
@@ -121,13 +130,21 @@ class Charts extends DBManager
 
                             var options = {
                               title: '".$this->loc->getWord($this->params["title"])."',
+                              hAxis: {
+        title: '',
+        format : '#%',
+        gridlines : {
+          count : 5,
+          color: 'white'
+        }
+      },
                               legend: { position: 'top', maxLines: 3 },
                                 bar: { groupWidth: '75%' },
                                 isStacked: ".$isStacked."
                             };
 
                             var chart = new google.visualization.ColumnChart(document.getElementById('".$this->div."'));";
-                            if(array_key_exists('listeners', $this->params["chartConfig"]) &&is_array($this->params["chartConfig"]["listeners"]) ){
+                            if(array_key_exists('chartConfig', $this->params) && array_key_exists('listeners', $this->params["chartConfig"]) &&is_array($this->params["chartConfig"]["listeners"]) ){
                                 $listeners = $this->params["chartConfig"]["listeners"];
                                 $countListeners = count($listeners);
                                 for($i = 0; $i < $countListeners; $i++){
@@ -159,7 +176,7 @@ class Charts extends DBManager
                           data.addRows(".$dc.");                                     
                           var options = {'title':'".$this->loc->getWord($this->params["title"])."'};
                           var chart = new google.visualization.PieChart(document.getElementById('".$this->div."'));";
-                          if(array_key_exists('listeners', $this->params["chartConfig"]) && is_array($this->params["chartConfig"]["listeners"]) ){
+                          if(array_key_exists('chartConfig', $this->params) && array_key_exists('listeners', $this->params["chartConfig"]) && is_array($this->params["chartConfig"]["listeners"]) ){
                               $listeners = $this->params["chartConfig"]["listeners"];
                                 $countListeners = count($listeners);
                                 for($i = 0; $i < $countListeners; $i++){

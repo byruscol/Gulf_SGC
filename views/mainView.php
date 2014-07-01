@@ -51,7 +51,14 @@ function actionRequest() {
     global $pluginPath;
     global $viewFile;
     global $resource;
-    //echo $viewFile;
+    require_once($viewFile);
+}
+
+function loadCodes() {
+    global $pluginPath;
+    global $pluginURL;
+    global $viewFile;
+    global $resource;
     require_once($viewFile);
 }
 ?>
