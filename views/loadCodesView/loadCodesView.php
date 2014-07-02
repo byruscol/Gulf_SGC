@@ -32,7 +32,7 @@
                             </div>
                         </div>
                         </div>
-                        <div class="col-xs-7" id="results">dfsdfdfsdf
+                        <div class="col-xs-7" id="results">
                         </div>
                     </div>
                     

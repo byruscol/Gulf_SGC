@@ -68,6 +68,8 @@ jQuery(document).ready(function() {
                     formData.append("code[]", jQuery(this).val());
                 });
                 
+                formData.append("captcha", jQuery(':input[name="captcha"]').val());
+                
                 if(jsonResponce.msg){
                     var submitRequest = jQuery.ajax({
                             type: 'POST',
@@ -80,14 +82,19 @@ jQuery(document).ready(function() {
                                 jQuery("#loading").dialog('open');
                             },
                              success: function(response, textStatus, jqXHR){
-                                data = jQuery.parseJSON( response );
-                                dataLength = data.length, table = '<table class="table table-condensed"><tr><th><?php echo $resource->getWord("code"); ?></th><th><?php echo $resource->getWord("status"); ?></th></tr>';
-                                for(i = 0; i < dataLength; i++){
-                                    status = (data[i].status == "1")? "success" : "danger";
-                                    table += '<tr class="'+status+'"><td>'+data[i].code+'</td><td>'+data[i].statusText+'</td></tr>';
+                                if(response == "captchaFail"){
+                                    jQuery('#failCode').css("display", "block");
                                 }
-                                table += '<table>';
-                                jQuery("#results").append(table);
+                                else{
+                                    data = jQuery.parseJSON( response );
+                                    dataLength = data.length, table = '<table class="table table-condensed"><tr><th><?php echo $resource->getWord("code"); ?></th><th><?php echo $resource->getWord("status"); ?></th></tr>';
+                                    for(i = 0; i < dataLength; i++){
+                                        status = (data[i].status == "1")? "success" : "danger";
+                                        table += '<tr class="'+status+'"><td>'+data[i].code+'</td><td>'+data[i].statusText+'</td></tr>';
+                                    }
+                                    table += '<table>';
+                                    jQuery("#results").append(table);
+                                }
                             },
                             complete: function(jqXHR, textStatus){
                                 jQuery("#loading").dialog('close');
