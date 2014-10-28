@@ -18,7 +18,7 @@ class mainController //extends resources
         global $prefixPlugin;
         global $pluginURL;
         global $pluginPath;
-        global $resource;
+        global $pluginURL;
         $this->prefix = $prefixPlugin;
         $this->pluginURL = $pluginURL;
         $this->pluginPath = $pluginPath;

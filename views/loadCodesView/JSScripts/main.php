@@ -61,7 +61,7 @@ jQuery(document).ready(function() {
                     });
             captchaRequest.done(function(msg)
             {
-                var jsonResponce = jQuery.parseJSON(msg)
+                var jsonResponce = JSON.parse(msg)
                 var formData = new FormData();
                 formData.append("oper", "add");
                 jQuery("#loadCodes input").each(function (index) {
