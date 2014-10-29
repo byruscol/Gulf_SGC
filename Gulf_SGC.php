@@ -28,8 +28,8 @@ if(!empty($_POST["id"])){
     $controlerId = $_REQUEST["page"];
 }
 
-/*if(isset($_REQUEST["task"]) && !empty($_REQUEST["task"]))
-    $_POST["method"] = $_REQUEST["task"];*/
+if(isset($_REQUEST["task"]) && !empty($_REQUEST["task"]))
+    $_POST["method"] = $_REQUEST["task"];
 
 if(is_plugin_active($pluginName."/".$pluginName.".php"))
     if(!isset($controller))

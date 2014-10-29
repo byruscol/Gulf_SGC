@@ -19,6 +19,7 @@ class mainController //extends resources
         global $pluginURL;
         global $pluginPath;
         global $pluginURL;
+        global $resource;
         $this->prefix = $prefixPlugin;
         $this->pluginURL = $pluginURL;
         $this->pluginPath = $pluginPath;
@@ -125,6 +126,19 @@ class mainController //extends resources
         wp_enqueue_script( 'bootstrap' );
 
         $this->headScripts[] = 'bootstrap';
+
+
+	
+	wp_register_script('ExportExcel', $this->pluginURL . 'js/jqgridExcelExportClientSide.js',$this->headScripts);
+	wp_enqueue_script( 'ExportExcel' );
+		
+	$this->headScripts[] = 'ExportExcel';
+		
+	wp_register_script('ExportExcelclient', $this->pluginURL . 'js/jqgridExcelExportClientSide-libs.js',$this->headScripts);
+	wp_enqueue_script( 'ExportExcelclient' );
+		
+	$this->headScripts[] = 'ExportExcelclient';
+
 
     }
 

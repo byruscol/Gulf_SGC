@@ -390,6 +390,20 @@ class Grid extends DBManager
                                                             , sopt: ["eq", "ne", "lt", "le", "gt", "ge", "bw", "bn", "ew", "en", "cn", "nc", "nu", "nn", "in", "ni"]
                                                             , width:"99%"
                                                         })';
+
+                                                if($this->entity["entityConfig"]["excel"]){
+                                                       $grid .= '.navButtonAdd("#' . $this->view . 'Pager",{
+                                                            caption:"Export to Excel",
+							    id:"csv_' . $this->view . '",
+                                                            onClickButton : function () {
+								$("#' . $this->view . '").jqGrid("exportarExcelCliente",{nombre:"HOJATEST",formato:"excel"});
+                                                            }
+                                                         })
+                                                       '; 
+                                                }
+
+
+
                                                 if($this->entity["entityConfig"]["view"]){     
                                                     $grid .= '.navSeparatorAdd("#' . $this->view . 'Pager").navButtonAdd("#' . $this->view . 'Pager",{
                                                             caption:"", 

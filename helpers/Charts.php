@@ -94,34 +94,41 @@ class Charts extends DBManager
                     array_key_exists('serieName', $this->params["chartConfig"]) &&
                     array_key_exists('ValueName', $this->params["chartConfig"]) )
                     $dataCol[] = array($this->loc->getWord($this->params["chartConfig"]["serieName"]),$this->loc->getWord($this->params["chartConfig"]["ValueName"]), array("role" => "annotation"));
-                
+                print_r($rowData);
                 foreach($dataChart as $k => $v){
                     
                     $dataArray = array();
                     foreach($v as $key => $value){
+                        
                         if(is_numeric($value)){
                             $value = $value + 0;
                         }
-                        $dataArray[] = $value;
+                        if(!empty($key))
+                            $dataArray[] = $value;
                     }
-                    $dataArray[] = '';
+                    
+                    switch ($this->type) {
+                        case "bar":
+                            $dataArray[] = '';
+                            break;
+                    }
+                    
                     $dataCol[] = $dataArray;                    
                 }
             }
-            $dc = json_encode($dataCol);
-
+            
+            /*$dc = "[
+          ['Task', 'Hours per Day'],
+          ['Work',     11],
+          ['Eat',      2],
+          ['Commute',  2],
+          ['Watch TV', 2],
+          ['Sleep',    7]
+        ]";*/
             header('Content-type: text/javascript');
             switch ($this->type) {
                 case "bar":
-                    /*  [
-                            [
-                              ['Year', 'Sales', 'Expenses'],
-                              ['2004',  1000,      400],
-                              ['2005',  1170,      460],
-                              ['2006',  660,       1120],
-                              ['2007',  1030,      540]
-                        ]*/
-                    
+                    $dc = json_encode($dataCol);
                     $chart = "
                         google.load('visualization', '1', {packages:['corechart']});
                         google.setOnLoadCallback(".$this->div.");
@@ -131,13 +138,13 @@ class Charts extends DBManager
                             var options = {
                               title: '".$this->loc->getWord($this->params["title"])."',
                               hAxis: {
-        title: '',
-        format : '#%',
-        gridlines : {
-          count : 5,
-          color: 'white'
-        }
-      },
+                                title: '',
+                                format : '#%',
+                                gridlines : {
+                                  count : 5,
+                                  color: 'white'
+                                }
+                              },
                               legend: { position: 'top', maxLines: 3 },
                                 bar: { groupWidth: '75%' },
                                 isStacked: ".$isStacked."
@@ -166,14 +173,18 @@ class Charts extends DBManager
                         ";
                     break;
                 case "pie":
+                    array_unshift($dataCol, array("series","value"));
+                    $dc = json_encode($dataCol);
                     $chart = "  
+                        
                         google.load('visualization', '1.0', {'packages':['corechart']});
                         google.setOnLoadCallback(".$this->div.");
                         function ".$this->div."() {
-                          var data = new google.visualization.DataTable();
-                          data.addColumn('string', 'Topping');
-                          data.addColumn('number', 'Slices');
-                          data.addRows(".$dc.");                                     
+                          //var data = new google.visualization.DataTable();
+                          var data = google.visualization.arrayToDataTable(".$dc.");
+                          //data.addColumn('string', 'Topping');
+                          //data.addColumn('number', 'Slices');
+                          /*data.addRows(".$dc."); */                                    
                           var options = {'title':'".$this->loc->getWord($this->params["title"])."'};
                           var chart = new google.visualization.PieChart(document.getElementById('".$this->div."'));";
                           if(array_key_exists('chartConfig', $this->params) && array_key_exists('listeners', $this->params["chartConfig"]) && is_array($this->params["chartConfig"]["listeners"]) ){
@@ -199,6 +210,7 @@ class Charts extends DBManager
                     ";
                     break;
                 case "geo":
+                    $dc = json_encode($dataCol);
                     $chart ="google.load('visualization', '1', {'packages': ['geochart']});
                             google.setOnLoadCallback(".$this->div.");
 

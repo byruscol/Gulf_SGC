@@ -31,7 +31,7 @@ $params = array("numRows" => 10
                                                 )
                                     )
             );
-$chartParams = array("title"=>"consolidateTaskStauts","subtitle"=>"puntoacopio", "queryId" => "pieMyTask"
+$chartParams = array("title"=>"consolidateTaskStauts","subtitle"=>"", "queryId" => "pieMyTask"
                      ,"chartConfig" => array(
                             "listeners" => array(
                                                 array("type"=>"select"

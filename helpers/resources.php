@@ -7,12 +7,17 @@ class resources{
 	function __construct($l = "es"){
             global $pluginPath;
             $locale = array();
-            //echo __FILE__;
-            $this->pluginPath = $pluginPath;
-            require_once $this->pluginPath.'/helpers/resources/'. $l .'.php';
-            $this->locale = $locale;
             
-            //print_r($this->locale);    
+            $this->pluginPath = $pluginPath;
+            if(file_exists('resources/'. $l .'.php')){
+                require_once 'resources/'. $l .'.php';
+            }
+            else{
+                
+                require_once realpath(dirname(__FILE__)).'/resources/'. $l .'.php';
+                
+            }
+            $this->locale = $locale;   
 	}
 	
 	public function getWord($key){//print_r($this->locale); 
