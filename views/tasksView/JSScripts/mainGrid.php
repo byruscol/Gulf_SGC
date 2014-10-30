@@ -9,7 +9,7 @@ require_once "../../class.buildChartView.php";
 header('Content-type: text/javascript');
 $params = array("numRows" => 10
                 , "sortname" => "date_entered"
-                , "CRUD" => array("add" => false, "edit" => true, "del" => true, "view" => true)
+                , "CRUD" => array("add" => false, "edit" => true, "del" => true, "view" => true, "excel" => true)
                 , "postData" => array("method" => "getMyTasks")
                 , "actions" => array(
                                         array("type" => "onSelectRow"

@@ -5,9 +5,9 @@ require_once "../../../helpers/Grid.php";
 require_once "../../class.buildView.php";
 header('Content-type: text/javascript');
 $params = array("numRows" => 10
-                , "sortname" => "nonConformityId"
-                , "CRUD" => array("add" => true, "edit" => true, "del" => true, "view" => true,"excel"=>true)
-                , "actions" => array(
+                , "sortname" => "statusid"
+                , "CRUD" => array("add" => true, "edit" => true, "del" => false, "view" => true,"excel"=>true)
+                /*, "actions" => array(
                                         array("type" => "onSelectRow"
                                                   ,"function" => 'function(id) {
                                                                     if(id != null) {
@@ -31,7 +31,8 @@ $params = array("numRows" => 10
                                                                     }
                                                                 }'
                                                 )
-                                    )
+                                    )*/
             );
-$view = new buildView($_GET["view"], $params, "nonConformities");
+
+$view = new buildView($_GET["view"], $params, "status");
 ?>

@@ -6,7 +6,7 @@ require_once "../../class.buildView.php";
 header('Content-type: text/javascript');
 $params = array("numRows" => 10
                 , "sortname" => "nonConformityId"
-                , "CRUD" => array("add" => true, "edit" => true, "del" => true, "view" => true)
+                , "CRUD" => array("add" => true, "edit" => true, "del" => true, "view" => true, "excel" => true)
                 , "actions" => array(
                                         array("type" => "onSelectRow"
                                                   ,"function" => 'function(id) {

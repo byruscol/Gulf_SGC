@@ -54,6 +54,18 @@ class Grid extends DBManager
             $data = implode(";", $DataArray);
             return $data;
     }
+    function EnumData($enums){
+	$DataArray = array();
+	$query = "SHOW COLUMNS FROM ".$enums["table"]." WHERE Field = '" . $enums["id"] . "' " ;
+	$Relation = $this->getDataGrid($query, null, null, null, null);
+	$e = str_replace(array("'","(",")","enum"),"", $Relation["data"][0]->Type);
+	$enumList = explode(",",$e);
+	foreach ( $enumList as $k){
+		$DataArray[] = $k.":".$k;
+	}
+	$data = implode(";", $DataArray);
+	return $data;
+    }
 	
     function colModelFromTable(){
     	$countCols = count($this->entity["atributes"]);
@@ -123,23 +135,18 @@ class Grid extends DBManager
                                                             );
     					break;
     			case 'enum':
-    				/*$enumList = explode(",", str_replace("'", "", substr($cols["data"][$i]->Type, 5, (strlen($cols["data"][$i]->Type)-6))));
-    				$values = array();
-    				$values[""] = "--Seleccione--";
-    				foreach($enumList as $value){
-    					$values[htmlspecialchars($value)] = htmlspecialchars($value);
-    				}
-    					
-    				$model = array_merge($model
-    						,array(
-    								'edittype' => 'select',
-    								'formatter' => 'select',
-    								'stype' => 'select',
-    								'editoptions' => array( 'value' => $values ),
-    								'searchoptions' => array('value' => $values)
-    						)
-    				);*/
-    				break;
+				$enums = array("table" => $this->entity["tableName"], "id" => $col);
+				$QueryData = $this->EnumData($enums);
+				$model = array_merge($model
+					,array(
+						'edittype' => 'select',
+						'formatter' => 'select',
+						'stype' => 'select',
+						'editoptions' => array( "value" => "@'".$QueryData."'@"),
+						'searchoptions' => array('value' => "@'".$QueryData."'@")
+					)
+				);
+					break;
     			case "Referenced":
     				$QueryData = $this->RelationShipData($value["references"]);
     					
@@ -322,7 +329,7 @@ class Grid extends DBManager
                                     //colNames:'.json_encode($this->colnames).',					
                                     colModel:'.$this->ColModel.',
                                     rowNum:'. $this->params["numRows"].',
-                                    rowList: ['. $this->params["numRows"] .', '. ($this->params["numRows"] * 2) .', '. ($this->params["numRows"] * 3) .'],
+                                    rowList: ['. $this->params["numRows"] .', '. ($this->params["numRows"] * 2) .', '. ($this->params["numRows"] * 3) .',"All"],
                                     pager: "#' . $this->view . 'Pager",						
                                     sortname: "'. $this->params["sortname"].'",
                                     viewrecords: true,

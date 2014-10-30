@@ -61,4 +61,11 @@ function loadCodes() {
     global $resource;
     require_once($viewFile);
 }
+
+function adminSGC() {
+    global $pluginPath;
+    global $viewFile;
+    global $resource;
+    require_once($viewFile);
+}
 ?>

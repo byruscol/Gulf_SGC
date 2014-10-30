@@ -167,7 +167,7 @@ class mainController //extends resources
 
     function action_callback() {
         $responce = new StdClass;
-        $page = $_POST['page']; // get the requested page
+        $page = ($_POST['page'] == 0)? 1:$_POST['page']; // get the requested page
         $limit = $_POST['rows']; // get how many rows we want to have into the grid
         $sidx = $_POST['sidx']; // get index row - i.e. user click to sort
         $sord = $_POST['sord']; // get the direction
@@ -184,6 +184,12 @@ class mainController //extends resources
 
         if(array_key_exists('filter', $_POST))
             $params["filter"] = $_POST["filter"];
+        
+        if(array_key_exists('from', $_POST))
+		    $params["from"] = $_POST["from"];
+			     
+	if(array_key_exists('to', $_POST))
+		    $params["to"] = $_POST["to"];
 
         if(array_key_exists('filters', $_POST) && !empty($_POST["filters"]))
             $params["where"] = json_decode (stripslashes($_POST["filters"]));
@@ -200,12 +206,18 @@ class mainController //extends resources
                     $total_pages = ceil($grid[totalRows]/$limit);
             else 
                     $total_pages = 0;
-
+            
+            if( $grid["totalRows"] > 0 && $limit > 0)
+		$total_pages = ceil($grid["totalRows"]/$limit);
+	    else 
+		$total_pages = 0;
+            
+            
             if ($page > $total_pages) $page = $total_pages;
 
             $responce->page = $page;
             $responce->total = $total_pages;
-            $responce->records = $grid[totalRows];
+            $responce->records = $grid["totalRows"];
 
             $countRows = count($grid["data"]);
             $j = 0;

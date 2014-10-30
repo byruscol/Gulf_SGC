@@ -1,6 +1,7 @@
 <?php
 $locale = array(
                 "accept" => "Aceptar"
+                ,"adminSGC" => "Administración"
                 ,"accionesinmediatassa" => "Acciones inmediatas"
                 ,"actionRequest" => "Solicitudes de acción"
                 ,"actionRequestId" => "No."
@@ -29,6 +30,7 @@ $locale = array(
                 ,"description" => "Descripción"
                 ,"estadosa" => "Estado"
                 ,"estadonc" => "Estado"
+                ,"estadosQ" => "Estado Quejas y Reclamos"
                 ,"ExpiredStatus" => "Oportunidad"
                 ,"ext" => "Tipo archivo"
                 ,"failCode" => "Código no valido."
