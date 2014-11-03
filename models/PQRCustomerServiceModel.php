@@ -8,9 +8,6 @@ class PQRCustomerService extends DBManagerModel{
     public function getList($params = array()){}
 
     public function getChart($params = array()){
-        require_once $this->pluginPath . "/helpers/mailSender.php";
-        $mail = new mailSender();
-        $mail->send();
         switch ($params["queryId"])
         {
             case "QPieChart": 

@@ -2,12 +2,12 @@
 /*error_reporting(E_ALL);
 ini_set('display_errors', '1');*/
 require_once('DBManagerModel.php');
-class adminSGC extends DBManagerModel{
+class actionRequestTypes extends DBManagerModel{
    
     public function getList($params = array()){
         $entity = $this->entity();
         $start = $params["limit"] * $params["page"] - $params["limit"];
-        $query = "SELECT  `statusid`, `status`,`Type`
+        $query = "SELECT  `requestTypeId`, `requestType`
                   FROM ".$entity["tableName"]."
                   ";
         
@@ -21,10 +21,10 @@ class adminSGC extends DBManagerModel{
         $this->addRecord($this->entity(), $_POST/*, array("date_entered" => date("Y-m-d H:i:s"), "created_by" => $this->currentUser->ID)*/);
     }
     public function edit(){
-        $this->updateRecord($this->entity(), $_POST, array("statusid" => $_POST["statusid"])/*, array("columnValidateEdit" => "assigned_user_id")*/);
+        $this->updateRecord($this->entity(), $_POST, array("requestTypeId" => $_POST["requestTypeId"])/*, array("columnValidateEdit" => "assigned_user_id")*/);
     }
     public function del(){
-        $this->delRecord($this->entity(), array("statusid" => $_POST["id"])/*, array("columnValidateEdit" => "assigned_user_id")*/);
+        $this->delRecord($this->entity(), array("requestTypeId" => $_POST["id"])/*, array("columnValidateEdit" => "assigned_user_id")*/);
     }
 
     public function detail($params = array()){
@@ -47,13 +47,13 @@ class adminSGC extends DBManagerModel{
     {
   
         $data = array(
-                        "tableName" => $this->pluginPrefix."status"
+                        "tableName" => $this->pluginPrefix."actionRequestTypes"
                         //,"columnValidateEdit" => "assigned_user_id"
                         ,"entityConfig" => $CRUD
                         ,"atributes" => array(
-                            "statusid" => array("type" => "int", "PK" => 0, "required" => false, "readOnly" => true, "autoIncrement" => true)
-                            ,"status" => array("type" => "varchar", "required" => true)
-                            ,"Type" => array("type" => "enum", "label" => "typestatus" , "required" => true))
+                            "requestTypeId" => array("type" => "int", "PK" => 0, "required" => false, "readOnly" => true, "autoIncrement" => true)
+                            ,"requestType" => array("type" => "varchar","label" => "tiposolicitudsa", "required" => true)
+                        )
                     );
             return $data;
     }

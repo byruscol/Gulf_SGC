@@ -126,9 +126,7 @@ class mainController //extends resources
         wp_enqueue_script( 'bootstrap' );
 
         $this->headScripts[] = 'bootstrap';
-
-
-	
+        
 	wp_register_script('ExportExcel', $this->pluginURL . 'js/jqgridExcelExportClientSide.js',$this->headScripts);
 	wp_enqueue_script( 'ExportExcel' );
 		

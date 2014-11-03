@@ -11,24 +11,24 @@
  *
  * @author asus
  */
+
 class mailSender {
-    //put your code here
-    function __construct() {
-        echo "ok";
+    private $message;
+    private $to;
+    private $subject;
+        
+    function sendMail(){
+        $headers[] = 'From: Intranet Prolub <intranet@prolub.com.co>';
+        wp_mail( $this->to, $this->subject, $this->message, $headers );
     }
     
-    function send(){
-        $to = "adrianotalvaro@hotmail.com";
-        $subject = "test";
-        $message = "message";
-
-        if(!function_exists('wp_mail'))
-            echo "wp_mail";
-        //else
-         //   echo "paila";
-        $headers[] = 'From: Me Myself <me@example.net>';
-
-        wp_mail( $to, $subject, $message );
+    function PQRAssigned($user, $type, $number, $email){
+       global $resource;
+       $this->subject = sprintf($resource->getWord("assignedMessageSubject"),$resource->getWord($type),$number);
+       $this->message = sprintf($resource->getWord("assignedMessage"),$user, $resource->getWord($type),$number);
+       //$this->to = $email;
+       $this->to = "adrianotalvaro@hotmail.com";
+       $this->sendMail();
     }
     
 }

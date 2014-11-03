@@ -5,8 +5,8 @@ require_once "../../../helpers/Grid.php";
 require_once "../../class.buildView.php";
 header('Content-type: text/javascript');
 $params = array("numRows" => 10
-                , "sortname" => "statusid"
+                , "sortname" => "officeId"
                 , "CRUD" => array("add" => true, "edit" => true, "del" => false, "view" => true,"excel"=>true)                
             );
-$view = new buildView($_GET["view"], $params, "status");
+$view = new buildView("offices", $params, "offices");
 ?>

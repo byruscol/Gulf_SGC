@@ -16,6 +16,8 @@ class Grid extends DBManager
     private $beforeShowForm = "";
     public $ValidateEdit = false;
     public $view;
+    public $validateFileSize = false;
+    public $validateCode = array();
 
     function __construct($type = "table", $p, $v, $t) {
             global $resource;
@@ -81,7 +83,11 @@ class Grid extends DBManager
         
     	foreach ($this->entity["atributes"] as $col => $value){
     		$this->colnames[] = $col;
-    		
+    		$label = $col;
+                if(isset($value['label'])){
+                    $label = $value['label'];
+                }
+                
     		$hidden = (isset($value['hidden']) && $value['hidden'] == true)? true: false;
     		
     		$required = ($value['required'])? true: false;
@@ -96,7 +102,7 @@ class Grid extends DBManager
     		}
     		
     		$model = array(
-    				'label' => $this->loc->getWord($col),
+    				'label' => $this->loc->getWord($label),
                                 'name'=> $col,
     				'index'=> $col,
     				'align' => 'center',
@@ -155,14 +161,25 @@ class Grid extends DBManager
                                                     'edittype' => 'select',
                                                     'formatter' => 'select',
                                                     'stype' => 'select',
-                                                    'editoptions' => array( value => "@'".$QueryData."'@" ),
+                                                    'editoptions' => array( "value" => "@'".$QueryData."'@" ),
                                                     'searchoptions' => array('value' => "@'".$QueryData."'@")
     						)
                                             );
     				break;
-    			case 'longblob':
-    		
+    			case 'file':
+                                    $this->validateFileSize = true;
+                                    $this->validateCode[] = "jQuery('#".$col."').bind('change', function() {
+                                                                alert(this.files[0].size);
+                                                              });";
+                            
+                                    $model = array_merge($model
+    						,array(
+                                                    'edittype' => 'file',
+                                                    'editoptions' => array( "enctype" => "multipart/form-data" )
+    						)
+                                            );
     				break;
+                            
     		}
                 
                 switch($col){
@@ -363,8 +380,8 @@ class Grid extends DBManager
                                                             viewPagerButtons: true,
                                                             width:"99%",
                                                             reloadAfterSubmit:true,
-                                                            closeAfterEdit: true
-                                                            ,afterShowForm:function(form){'.$this->beforeShowForm.' ;}
+                                                            closeAfterEdit: true,
+                                                            afterShowForm:function(form){'.$this->beforeShowForm.' ;}
                                                         }';
                                     }
                                     else
@@ -376,8 +393,9 @@ class Grid extends DBManager
                                                             viewPagerButtons: false,
                                                             width:"99%",
                                                             reloadAfterSubmit:true,
-                                                            closeAfterAdd: true
-                                                            ,afterShowForm:function(form){'.$this->beforeShowForm.' ;}
+                                                            closeAfterAdd: true,
+                                                            beforeSubmit: function(postdata, formid){alert(formid)},
+                                                            afterShowForm:function(form){'.$this->beforeShowForm.' ;}
                                                         }';
                                     }else
                                         $grid .= ',{}';
@@ -467,8 +485,15 @@ class Grid extends DBManager
                                                             position:"last"
                                                         })';
                                                 }
-                            $grid .= '})';
+                            $grid .= '});';
 
+            if($this->validateFileSize){
+                $validateCount = count($this->validateCode);
+                for($i = 0; $i < $validateCount; $i++){
+                    $grid .=$this->validateCode[$i];
+                }
+            }
+            
             echo  $grid;
 	}
 }

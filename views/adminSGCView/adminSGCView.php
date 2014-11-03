@@ -22,9 +22,14 @@
     </div>
     <div id="tabs" class="span11">
         <ul id="adminSGCTab" class="nav nav-tabs">
-        <li class="active"><a href="#statusTab" data-toggle="tab"><?php echo $resource->getWord("estadosQ"); ?></a></li>     
-        <li><a href="#tasksTab" data-toggle="tab"><?php echo $resource->getWord("tasks"); ?></a></li>  
-        <li><a href="#filesTab" data-toggle="tab"><?php echo $resource->getWord("files"); ?></a></li>
+            <li class="active"><a href="#statusTab" data-toggle="tab"><?php echo $resource->getWord("estadosQ"); ?></a></li>     
+            <li><a href="#sourcesTab" data-toggle="tab"><?php echo $resource->getWord("fuentencs"); ?></a></li>  
+            <li><a href="#generalitiesTab" data-toggle="tab"><?php echo $resource->getWord("generalidadnc"); ?></a></li>
+            <li><a href="#officesTab" data-toggle="tab"><?php echo $resource->getWord("sedes"); ?></a></li>
+            <li><a href="#managementsTab" data-toggle="tab"><?php echo $resource->getWord("gestiones"); ?></a></li>
+            <li><a href="#classificationsTab" data-toggle="tab"><?php echo $resource->getWord("clasificacion_nc_c"); ?></a></li>
+            <li><a href="#customerTypesTab" data-toggle="tab"><?php echo $resource->getWord("tipo_cliente_c"); ?></a></li>
+            <li><a href="#actionRequestTypesTab" data-toggle="tab"><?php echo $resource->getWord("tiposolicitudsa"); ?></a></li>
         </ul>
         <div id="TabContent" class="tab-content">
             <div class="tab-pane fade active" id="statusTab">
@@ -34,59 +39,67 @@
                     <div id="adminSGCPager"></div>
                 </div>
             </div>
-            <div class="tab-pane fade active" id="tasksTab">
+            <div class="tab-pane fade active" id="sourcesTab">
                 <div class="spacer10"></div>
                 <div class="jqGrid">
                     <div class="ui-jqgrid ui-widget ui-corner-all clear-margin span12" dir="ltr" style="">
-                        <table id="tasks"></table>
-                        <div id="tasksPager"></div>
+                        <table id="sources"></table>
+                        <div id="sourcesPager"></div>
                     </div>
                 </div>
             </div>
-            <div class="tab-pane fade active" id="filesTab">
+            <div class="tab-pane fade active" id="generalitiesTab">
                 <div class="spacer10"></div>
-                <div class="span12">
-                    <div class="span8">
-                        <div class="jqGrid">
-                            <div class="ui-jqgrid ui-widget ui-corner-all clear-margin span12" dir="ltr" style="">
-                                <table id="files"></table>
-                                <div id="filesPager"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="span3">
-                        <form id="uploadFiles" class="form-horizontal" enctype="multipart/form-data" method="post">
-                            <fieldset>
-
-                            <!-- Form Name -->
-                            <legend><?php echo $resource->getWord("uploadFile"); ?></legend>
-
-                            <!-- Text input-->
-                            <div class="control-group">
-                              <div class="controls">
-                                <input id="name" name="name" placeholder="<?php echo $resource->getWord("fileName"); ?>" class="input-xlarge" required="true" type="text">
-                                <input type="hidden" name="oper" value="add"/>
-                                <input type="hidden" name="parentRelationShip" value="nonConformity"/>
-                              </div>
-                            </div>
-                            <br/>
-                            <!-- Text input-->
-                            <div class="control-group">
-                              <div class="controls">
-                                  <input type="file" id="file" name="file" class="btn btn-default" required="true">
-                                </div>
-                              </div>
-                              <br/>
-                            <!-- Button -->
-                            <div class="control-group">
-                              <div class="controls">
-                                <button id="submit" name="submit" class="btn btn-primary"><?php echo $resource->getWord("accept"); ?></button>
-                              </div>
-                            </div>
-
-                            </fieldset>
-                        </form>
-                    </div>
+                <div class="jqGrid">
+                    <div class="ui-jqgrid ui-widget ui-corner-all clear-margin span12" dir="ltr" style="">
+                        <table id="generalities"></table>
+                        <div id="generalitiesPager"></div>
+                    </div>                      
+                </div>
+            </div>
+            <div class="tab-pane fade active" id="officesTab">
+                <div class="spacer10"></div>
+                <div class="jqGrid">
+                    <div class="ui-jqgrid ui-widget ui-corner-all clear-margin span12" dir="ltr" style="">
+                        <table id="offices"></table>
+                        <div id="officesPager"></div>
+                    </div>                      
+                </div>
+            </div>
+            <div class="tab-pane fade active" id="managementsTab">
+                <div class="spacer10"></div>
+                <div class="jqGrid">
+                    <div class="ui-jqgrid ui-widget ui-corner-all clear-margin span12" dir="ltr" style="">
+                        <table id="managements"></table>
+                        <div id="managementsPager"></div>
+                    </div>                      
+                </div>
+            </div>
+            <div class="tab-pane fade active" id="classificationsTab">
+                <div class="spacer10"></div>
+                <div class="jqGrid">
+                    <div class="ui-jqgrid ui-widget ui-corner-all clear-margin span12" dir="ltr" style="">
+                        <table id="classifications"></table>
+                        <div id="classificationsPager"></div>
+                    </div>                      
+                </div>
+            </div>
+            <div class="tab-pane fade active" id="customerTypesTab">
+                <div class="spacer10"></div>
+                <div class="jqGrid">
+                    <div class="ui-jqgrid ui-widget ui-corner-all clear-margin span12" dir="ltr" style="">
+                        <table id="customerTypes"></table>
+                        <div id="customerTypesPager"></div>
+                    </div>                      
+                </div>
+            </div>
+            <div class="tab-pane fade active" id="actionRequestTypesTab">
+                <div class="spacer10"></div>
+                <div class="jqGrid">
+                    <div class="ui-jqgrid ui-widget ui-corner-all clear-margin span12" dir="ltr" style="">
+                        <table id="actionRequestTypes"></table>
+                        <div id="actionRequestTypesPager"></div>
+                    </div>                      
                 </div>
             </div>
         </div>

@@ -22,10 +22,16 @@ class nonConformity extends DBManagerModel{
 
     public function add(){
         $this->addRecord($this->entity(), $_POST, array("date_entered" => date("Y-m-d H:i:s"), "created_by" => $this->currentUser->ID));
+        $this->sendAssignedMail($this->DBOper["data"]["assigned_user_id"], $this->LastId, "nonConformityO");
     }
+    
     public function edit(){
         $this->updateRecord($this->entity(), $_POST, array("nonConformityId" => $_POST["nonConformityId"]), array("columnValidateEdit" => "assigned_user_id"));
+        if(array_key_exists("assigned_user_id", $this->DBOper["data"])){
+            $this->sendAssignedMail($this->DBOper["data"]["assigned_user_id"], $_POST["id"], "nonConformityO");
+        }
     }
+    
     public function del(){
         $this->delRecord($this->entity(), array("nonConformityId" => $_POST["id"]), array("columnValidateEdit" => "assigned_user_id"));
     }

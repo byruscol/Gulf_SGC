@@ -4,7 +4,6 @@ ini_set('display_errors', '1');*/
 
 require_once dirname(__FILE__)."/../pluginConfig.php";
 require_once(getPahtFile('wp-load.php') );
-
 abstract class DBManager{
     public $conn;
     public $pluginPrefix;
@@ -264,6 +263,9 @@ abstract class DBManager{
         }
     }
 
+    protected function getUserdata($id){
+        return get_userdata($id);
+    }
     protected function updateRecord($entity, $newRecord, $filters, $validate = null){
         if ( ! is_array( $newRecord ) || ! is_array( $filters ))
             return false;
