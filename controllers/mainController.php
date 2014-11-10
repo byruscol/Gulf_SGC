@@ -38,7 +38,8 @@ class mainController //extends resources
 
         $this->model = new $controller();
         $this->controllerName = $controller;
-
+        
+       
         $this->PrefixPlugin = $this->model->pluginPrefix;
 
         if(substr_count($_SERVER["SCRIPT_NAME"], "admin-ajax") == 0)
@@ -50,7 +51,9 @@ class mainController //extends resources
         }
 
         if($showView){
+            
             $this->view = $controller."View";
+            
             add_action( 'admin_menu', array($this, 'Plugin_menu') );
             add_action( 'wp_ajax_action', array($this, 'action_callback'));
         }
@@ -98,6 +101,10 @@ class mainController //extends resources
         wp_enqueue_script('jqGrid');
 
         $this->headScripts[] = 'jqGrid';
+        wp_register_script('ajaxfileupload', $this->pluginURL . 'js/ajaxfileupload.js',$this->headScripts);
+        wp_enqueue_script( 'ajaxfileupload' );
+        
+        $this->headScripts[] = 'ajaxfileupload';
         wp_register_script('tinymce',  $this->pluginURL . 'js/tinymce/tinymce.min.js',$this->headScripts);
         wp_enqueue_script( 'tinymce' );
 

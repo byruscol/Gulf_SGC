@@ -68,4 +68,11 @@ function adminSGC() {
     global $resource;
     require_once($viewFile);
 }
+
+function documents() {
+    global $pluginPath;
+    global $viewFile;
+    global $resource;
+    require_once($viewFile);
+}
 ?>

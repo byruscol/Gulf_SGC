@@ -88,7 +88,17 @@ class Grid extends DBManager
                     $label = $value['label'];
                 }
                 
-    		$hidden = (isset($value['hidden']) && $value['hidden'] == true)? true: false;
+    		//$hidden = (isset($value['hidden']) && $value['hidden'] == true)? true: false;
+		
+		$hidden = (isset($value['hidden']) && $value['hidden'] == true)? true: false;
+		$editable = (isset($value['editable']))? isset($value['editable']): true;
+		$required = ($value['required'])? true: false;
+		$sortable = (isset($value['sortable']) )? $value['sortable']: true;
+		if($hidden){
+			$editable = false;
+			$required = false;
+			$sortable = false;
+		}
     		
     		$required = ($value['required'])? true: false;
     		
@@ -103,17 +113,17 @@ class Grid extends DBManager
     		
     		$model = array(
     				'label' => $this->loc->getWord($label),
-                                'name'=> $col,
-    				'index'=> $col,
-    				'align' => 'center',
-    				'sortable' => true,
-    				'editable' => true,
-    				'editrules' => array('required' => $required),
-    				'formoptions' => $option,
-    				'hidden' => $hidden,
-    				'classes'=> 'ellipsis'
-    		);
-    		
+				'name'=> $col,
+				'index'=> $col,
+				'align' => 'center',
+				'sortable' => $sortable,
+				'editable' => true,
+				'editrules' => array('required' => $required),
+				'formoptions' => $option,
+				'hidden' => $hidden,
+				'classes'=> 'ellipsis'
+    		);		
+		
     		if(array_key_exists('references', $value))
     			$colType = "Referenced";
     		else
@@ -166,7 +176,27 @@ class Grid extends DBManager
     						)
                                             );
     				break;
-    			case 'file':
+			case 'file':
+					$this->validateFileSize = true;
+					$this->fileId[] = $col;
+					$this->validateCode[] = "jQuery(document).on('change', '#".$col."', function() {
+                                                                if((jQuery('#".$col."')[0].files[0].size/".$value['validateAttr']["factor"].") > ".$value['validateAttr']["size"]."){
+                                                                    jQuery('#".$col."').replaceWith(jQuery('#".$col."').clone(true));
+                                                                    jQuery('#".$col."').val('');
+                                                                    alert('".sprintf($this->loc->getWord("fileSize"), $value['validateAttr']["size"], $value['validateAttr']["units"])."');
+                                                                }
+                                                              });";
+                                    
+					$model = array_merge($model
+						,array(
+							'edittype' => 'file',
+							'formatter' => "FilesLinks",
+							'search' => false,
+							'editoptions' => array( "enctype" => "multipart/form-data" )
+						)
+					);
+				break;
+    			/*case 'file':
                                     $this->validateFileSize = true;
                                     $this->validateCode[] = "jQuery('#".$col."').bind('change', function() {
                                                                 alert(this.files[0].size);
@@ -179,6 +209,7 @@ class Grid extends DBManager
     						)
                                             );
     				break;
+    				*/
                             
     		}
                 
@@ -186,7 +217,9 @@ class Grid extends DBManager
                     case "parentId": $model["editoptions"]["defaultValue"] = "@function(g){return this.p.postData.filter}@"; break;
                     case "parentRelationShip": $model["editoptions"]["defaultValue"] = "@function(g){return this.p.postData.parent}@"; break;
                 }
-                
+                if(array_key_exists('edithidden', $value) && $value['edithidden']){
+			$model["editrules"]["edithidden"] = true;
+		}
                 if((!array_key_exists('readOnly', $value) || !$value['readOnly'])
                     && ($colType == "date")){
                         $model["editoptions"]["defaultValue"] = "@function(g){return '".date("Y-m-d", time())."'}@";
@@ -198,12 +231,14 @@ class Grid extends DBManager
                     }
                 
                 if(array_key_exists('downloadFile', $value) && $value['downloadFile']["show"]){
+                    
                     $icon = $this->pluginURL."images/file.jpg";
-                        
+                    $rowObjectId = (isset($value['downloadFile']["rowObjectId"]))? $value['downloadFile']["rowObjectId"]:8;
+                    $viewParam = (isset($value['downloadFile']["view"]))? $value['downloadFile']["view"] : $this->view;
                     $model["formatter"] = "@function(cellvalue, options, rowObject){"
-                                            ."var icon = '".$this->pluginURL."/images/'+rowObject[8];"
-                                            . "return '<a title=\"'+cellvalue+'\" href=\"".$this->pluginURL."download.php?controller=".$this->view."&id='+cellvalue+'\" target=\"_blank\"> <img src=\"'+icon+'\"/> </a>'}@";
-                }    
+                                            ."var icon = '".$this->pluginURL."/images/'+rowObject[".$rowObjectId."];"
+                                            . "return '<a title=\"'+cellvalue+'\" href=\"".$this->pluginURL."download.php?controller=".$viewParam."&id='+cellvalue+'\" target=\"_blank\"> <img src=\"'+icon+'\"/> </a>'}@";
+                }  
                     
                /* test tooltip description
                 * if(array_key_exists('toolTip', $value) && is_array($value['toolTip'])){
@@ -250,7 +285,19 @@ class Grid extends DBManager
     function gridBuilderFromTable() {
     	$this->colModelFromTable();
     	$title = $this->table;
-    	
+    	$files = (isset($this->params["CRUD"]["files"]) && $this->params["CRUD"]["files"])?true:false;
+	$ajaxFileUpload = "";
+        if($files){
+            $filesCount = count($this->params["fileActions"]);
+            for($i = 0; $i < $filesCount; $i++){
+                $url = $this->params["fileActions"][$i]["url"];
+                $idFile = $this->params["fileActions"][$i]["idFile"];
+                $oper = $this->params["fileActions"][$i]["oper"];
+                $parentRelationShip = $this->params["fileActions"][$i]["parentRelationShip"];
+                $ajaxFileUpload  .= "ajaxFileUpload(result.parentId, '".$url."','".$idFile."','".$oper."','".$parentRelationShip."','".$this->view."');";
+            }
+        }
+
     	if(array_key_exists('postData', $this->params)){
     		if(is_array($this->params['postData']))
     		{	
@@ -381,6 +428,11 @@ class Grid extends DBManager
                                                             width:"99%",
                                                             reloadAfterSubmit:true,
                                                             closeAfterEdit: true,
+							    afterSubmit: function(response, postdata){
+                                                                var result = jQuery.parseJSON(response.responseText);
+                                                                '.$ajaxFileUpload.'
+                                                                return [true]
+                                                            },
                                                             afterShowForm:function(form){'.$this->beforeShowForm.' ;}
                                                         }';
                                     }
@@ -394,7 +446,12 @@ class Grid extends DBManager
                                                             width:"99%",
                                                             reloadAfterSubmit:true,
                                                             closeAfterAdd: true,
-                                                            beforeSubmit: function(postdata, formid){alert(formid)},
+							    afterSubmit: function(response, postdata){
+                                                                var result = jQuery.parseJSON(response.responseText);
+                                                                '.$ajaxFileUpload.'
+                                                                return [true]
+                                                            },
+                                                            //beforeSubmit: function(postdata, formid){alert(formid)},
                                                             afterShowForm:function(form){'.$this->beforeShowForm.' ;}
                                                         }';
                                     }else
@@ -493,7 +550,7 @@ class Grid extends DBManager
                     $grid .=$this->validateCode[$i];
                 }
             }
-            
+      
             echo  $grid;
 	}
 }

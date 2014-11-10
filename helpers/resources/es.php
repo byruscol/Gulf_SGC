@@ -69,6 +69,7 @@ $locale = array(
                 ,"size" => "Tamaño"
                 ,"status" => "Estado"
                 ,"taskId" => "No."
+                ,"task" => "Tarea"
                 ,"tasks" => "Tareas PQR"
                 ,"taskType" => "Tipo de tarea"
                 ,"typestatus" => "Tipos de estado"

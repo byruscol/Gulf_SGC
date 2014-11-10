@@ -190,6 +190,14 @@ class files extends DBManagerModel{
                                             ,"fileId" => array("type" => "int", "PK" => 0)
                                         )
                                     )
+			,"documents" => array(
+                                        "tableName" => $this->pluginPrefix."systemDocuments_files"
+                                        ,"parent" => array("tableName" => $this->pluginPrefix."systemDocuments", "Id" => "systemDocumentId")
+                                        ,"atributes" => array(
+                                            "systemDocumentId" => array("type" => "int", "PK" => 0)
+                                            ,"fileId" => array("type" => "int", "PK" => 0)
+                                        )
+                                    )
                     )
                 );
             return $data;

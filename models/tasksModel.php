@@ -10,14 +10,24 @@ class tasks extends DBManagerModel{
                 $params["filter"] = 0;
 
         $start = $params["limit"] * $params["page"] - $params["limit"];
-        $query = "SELECT n.`taskId`, `name`, `status`, `priority`, `date_entered`, `display_name` AS `created_by`
+        $query = "SELECT t.`taskId`, `name`, `status`, `priority`, `date_entered`, `display_name` AS `created_by`
                                          , `assigned_user_id`, `date_start`,  `date_due`
-                                         , `Expired` ExpiredStatus, `description`, `taskType` 
-                          FROM  `".$entity["tableName"]."` n
-                          JOIN ".$this->wpPrefix."users u ON u.ID = n.created_by
-                          JOIN ".$this->pluginPrefix."taskTypes t ON t.taskTypeId = n.taskTypeId
-                          LEFT JOIN timetasksstatus tts On tts.taskId = n.taskId
-                          WHERE  `deleted` = 0 AND n.`taskId` IN ( ". $params["filter"] ." )";
+                                         ,  if( 	(isnull(`t`.`date_due`) or isnull(`t`.`date_start`)), 'Sin fechas',
+                                                            if(((	`t`.`date_due` < curdate()) 
+                                                                                    and (`t`.`date_due` is not null) and (`t`.`date_start` is not null)), 'Vencida',
+                                                                            if(	((`t`.`date_due` >= curdate()) and (`t`.`date_due` is not null) and (`t`.`date_start` is not null)),
+                                                                                    if(isnull(((to_days(curdate()) - to_days(`t`.`date_start`)) / (to_days(`t`.`date_due`) - to_days(`t`.`date_start`)))),'Vence hoy'
+                                                                                            ,if((((to_days(curdate()) - to_days(`t`.`date_start`)) / (to_days(`t`.`date_due`) - to_days(`t`.`date_start`))) >= 0.9),'proxima a vencer'
+                                                                                                    ,'Con tiempo')),
+                                                                                    'NA')
+                                                                    )
+                                              ) ExpiredStatus
+                                         , `description`, `taskType` 
+                          FROM  `".$entity["tableName"]."` t
+                          JOIN ".$this->wpPrefix."users u ON u.ID = t.created_by
+                          JOIN ".$this->pluginPrefix."taskTypes tt ON t.taskTypeId = t.taskTypeId
+                          LEFT JOIN timetasksstatus tts On tts.taskId = t.taskId
+                          WHERE  `deleted` = 0 AND t.`taskId` IN ( ". $params["filter"] ." )";
         if(array_key_exists('where', $params)){
             if (is_array( $params["where"]->rules )){
                 $countRules = count($params["where"]->rules);
@@ -101,7 +111,22 @@ class tasks extends DBManagerModel{
                 $query = "SELECT s.status, ts.Expired, COUNT( 1 ) Q
                             FROM `".$this->pluginPrefix."tasks` t
                             LEFT JOIN ".$this->pluginPrefix."status s ON s.statusid = t.status
-                            LEFT JOIN `timetasksstatus` ts ON ts.taskId = t.taskId
+                            LEFT JOIN (
+                                SELECT t.`taskId`
+                                        , if( 	(isnull(`t`.`date_due`) or isnull(`t`.`date_start`)), 'Sin fechas',
+                                                                if(((	`t`.`date_due` < curdate()) 
+                                                                                        and (`t`.`date_due` is not null) and (`t`.`date_start` is not null)), 'Vencida',
+                                                                                if(	((`t`.`date_due` >= curdate()) and (`t`.`date_due` is not null) and (`t`.`date_start` is not null)),
+                                                                                        if(isnull(((to_days(curdate()) - to_days(`t`.`date_start`)) / (to_days(`t`.`date_due`) - to_days(`t`.`date_start`)))),'Vence hoy'
+                                                                                                ,if((((to_days(curdate()) - to_days(`t`.`date_start`)) / (to_days(`t`.`date_due`) - to_days(`t`.`date_start`))) >= 0.9),'proxima a vencer'
+                                                                                                        ,'Con tiempo')),
+                                                                                        'NA')
+                                                                        )
+                                                  )
+                                Expired
+                                FROM  `".$this->pluginPrefix."tasks` t
+                                WHERE  t.`deleted` = 0 AND t.`assigned_user_id` = " . $this->currentUser->ID."
+                            ) ts ON ts.taskId = t.taskId
                             WHERE t.deleted = 0
                                 AND t.`assigned_user_id` = " . $this->currentUser->ID."
                             GROUP BY Expired, status
@@ -117,10 +142,15 @@ class tasks extends DBManagerModel{
         $taskType = $entityObj["relationship"][$_POST["taskType"]];
         
         $this->addRecord($entityObj, $_POST, array("date_entered" => date("Y-m-d H:i:s"), "created_by" => $this->currentUser->ID, "taskTypeId" => $taskType));
+        $this->sendAssignedMail($this->DBOper["data"]["assigned_user_id"], $this->LastId, "task");
         $this->addRecord($relEntity, array($relEntity["parent"]["Id"] => $_POST["parentId"],"taskId" => $this->LastId), array());
+        
     }
     public function edit(){
         $this->updateRecord($this->entity(), $_POST, array("taskId" => $_POST["taskId"]), array("columnValidateEdit" => "assigned_user_id"));
+        if(array_key_exists("assigned_user_id", $this->DBOper["data"])){
+            $this->sendAssignedMail($this->DBOper["data"]["assigned_user_id"], $_POST["taskId"], "task");
+        }
     }
     public function del(){
         $this->delRecord($this->entity(), array("taskId" => $_POST["id"]), array("columnValidateEdit" => "assigned_user_id"));
