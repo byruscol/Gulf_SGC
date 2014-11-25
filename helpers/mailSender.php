@@ -27,7 +27,8 @@ class mailSender {
        $this->subject = sprintf($resource->getWord("assignedMessageSubject"),$resource->getWord($type),$number);
        $this->message = sprintf($resource->getWord("assignedMessage"),$user, $resource->getWord($type),$number);
        //$this->to = $email;
-       $this->to = "adrianotalvaro@hotmail.com";
+       //$this->to = "adrianotalvaro@hotmail.com";
+       $this->to = "sgcprolub@gulfcolombia.com";
        $this->sendMail();
     }
     
