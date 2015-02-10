@@ -1,6 +1,6 @@
 <?php
-/*error_reporting(E_ALL);
-ini_set('display_errors', '1');*/
+/*error_reporting(E_ALL);*/
+ini_set('display_errors', '0');
 
 class mainController //extends resources
 {
@@ -38,10 +38,11 @@ class mainController //extends resources
 
         $this->model = new $controller();
         $this->controllerName = $controller;
-        
-       
+        $theme_name = get_stylesheet_directory();
+        //echo $theme_name."dd";
+       //print_r($this->model->conn);
         $this->PrefixPlugin = $this->model->pluginPrefix;
-
+       
         if(substr_count($_SERVER["SCRIPT_NAME"], "admin-ajax") == 0)
         {
             if($showView){
@@ -90,7 +91,11 @@ class mainController //extends resources
         wp_enqueue_style( 'gridCss' );
         wp_register_style( 'pluginCss', $this->pluginURL . 'css/plugincss.css');
         wp_enqueue_style( 'pluginCss' );
-
+        
+        //wp_register_style( 'pluginCss', $this->pluginURL . 'css/plugincss.css');
+        //wp_enqueue_style( 'pluginCss' );
+        
+       // wp_enqueue_style('my-admin-theme', plugins_url('wp-admin.css', __FILE__));
 
         $this->headScripts[] = 'jquery';
         wp_register_script('locale_es', $this->pluginURL . 'js/jqGrid/grid.locale-es.js', $this->headScripts);

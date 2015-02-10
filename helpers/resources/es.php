@@ -30,6 +30,11 @@ $locale = array(
                 ,"date_entered" => "Fecha creación"
                 ,"date_start" => "Fecha inicio"
                 ,"description" => "Descripción"
+                ,"documents" => "Documentos"
+                ,"document_name" => "Nombre de documento"
+                ,"documentTypeId" => "Documentos"
+                ,"documentTypesId" => "Tipo de Documentos"
+                ,"systemDocumentId" => "No Documento"
                 ,"estadosa" => "Estado"
                 ,"estadonc" => "Estado"
                 ,"estadosQ" => "Tipos de Estado"
@@ -79,6 +84,7 @@ $locale = array(
                 ,"tiposolicitudsa" => "Tipo solicitud"
                 ,"uploadFile" => "Cargar archivo"
                 ,"Value" => "Valor"
+                ,"version" => "Versión"
                 ,"verificationCode" => "Código de verificación"
             );
 ?>

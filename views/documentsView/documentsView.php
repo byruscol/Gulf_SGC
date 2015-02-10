@@ -1,34 +1,16 @@
 <div class="row-fluid">
-       
-    <div class="span12"></div>
-    <div id="tabs" class="span11">
-        <ul id="tasksTab" class="nav nav-tabs">
-        <!--<li class="active"><a href="#filesTab" data-toggle="tab"><?php echo $resource->getWord("files"); ?></a></li>      -->
-        <li><a href="#filesTab" data-toggle="tab"><?php echo $resource->getWord("files"); ?></a></li>
-        </ul>
-        <div id="TabContent" class="tab-content">
-            <div class="tab-pane fade active" id="notesTab">
-                <div class="spacer10"></div>
-                <div class="ui-jqgrid ui-widget ui-corner-all clear-margin span12" dir="ltr" style="">
-                    <table id="notes"></table>
-                    <div id="notesPager"></div>
-                </div>
+     <div class="span11">
+        <div class="jqGrid">
+            <div class="wrap">
+                <div id="icon-tools" class="icon32"></div>
+                <h2><?php echo $resource->getWord("files"); ?></h2>
             </div>
-            <div class="tab-pane fade active" id="filesTab">
-                <div class="spacer10"></div>
-                <div class="span12">
-                    <div class="span8">
-                        <div class="jqGrid">
-                            <div class="ui-jqgrid ui-widget ui-corner-all clear-margin span12" dir="ltr" style="">
-                                <table id="documents"></table>
-                                <div id="documentsPager"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="span12">
+            <table id="documents"></table>
+            <div id="documentsPager"></div>
             </div>
         </div>
-    </div> 
+    </div>   
 </div>
 <div id="loading"><p><?php echo $resource->getWord("LoadingFile"); ?></p></div>
 <script>

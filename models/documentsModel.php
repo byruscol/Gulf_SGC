@@ -13,15 +13,20 @@ class documents extends DBManagerModel{
         $query = "SELECT  n.`systemDocumentId`,
 			n.`document_name`,
 			n.documentTypeId,
+			m.managementId,
+			st.documentTypesId,			
 			n.`description`,
 			n.`version`,
 			n.`date_entered`,
 			f.ext soporte, f.fileId, '' file, n.created_by
                     FROM  `".$entity["tableName"]."` n
                     JOIN ".$this->wpPrefix."users u ON u.ID = n.created_by
+		    LEFT JOIN ".$this->pluginPrefix."managements m ON m.managementId = n.managementId
+		    LEFT JOIN ".$this->pluginPrefix."systemDocumentsTypesXTypes st ON st.documentTypesId = n.documentTypesId
 		    LEFT JOIN ".$this->pluginPrefix."systemDocuments_files fi on fi.systemDocumentId = n.`systemDocumentId`
 		    LEFT JOIN ".$this->pluginPrefix."files f ON f.fileId = fi.fileId
                     WHERE  n.`deleted` = 0 ";
+		    
         if(array_key_exists('where', $params)){
             if (is_array( $params["where"]->rules )){
                 $countRules = count($params["where"]->rules);
@@ -91,11 +96,13 @@ class documents extends DBManagerModel{
                             "systemDocumentId" => array("type" => "int", "PK" => 0, "required" => false, "readOnly" => true, "autoIncrement" => true )
                             ,"document_name" => array("type" => "varchar", "required" => true)
 			    ,"documentTypeId" => array("type" => "tinyint", "required" => true, "references" => array("table" => $this->pluginPrefix."systemDocumentTypes", "id" => "documentTypeId", "text" => "documentType"))
+			    ,"managementId" => array("type" => "tinyint", "label" => "gestion", "required" => true, "references" => array("table" => $this->pluginPrefix."managements", "id" => "managementId", "text" => "management"))
+			    ,"documentTypesId" => array("type" => "int", "label" => "documentTypesId", "required" => true, "references" => array("table" => $this->pluginPrefix."systemDocumentsTypesXTypes", "id" => "documentTypesId", "text" => "documentTypes"))
 			    ,"description" => array("type" => "varchar", "required" => true, "text" => true, "hidden" => true)
                             ,"version" => array("type" => "varchar", "required" => true)
 			    ,"date_entered" => array("type" => "datetime", "required" => false, "readOnly" => true )                            
                             ,"parentId" => array("type" => "int","required" => false, "hidden" => true, "isTableCol" => false)
-			    ,"soporte" => array("type" => "varchar", "required" => false, "readOnly" => true, "hidden" => false, "isTableCol" => false, "downloadFile" => array("show" => true, "cellIcon" => 6, "rowObjectId" => 6, "view" => "files"))
+			    ,"soporte" => array("type" => "varchar", "required" => false, "readOnly" => true, "hidden" => false, "isTableCol" => false, "downloadFile" => array("show" => true, "cellIcon" => 8, "rowObjectId" => 8, "view" => "files"))
 			    ,"file" => array("type" => "file", "validateAttr" => array("size" => 200, "units" => "MB", "factor" => 1024), "required" => false,"hidden" => true, "edithidden" => true, "isTableCol" => false)
 			    ,"fileId" => array("type" => "int", "hidden" => true, "required" => false, "readOnly" => true, "hidden" => true, "isTableCol" => false)
                             
